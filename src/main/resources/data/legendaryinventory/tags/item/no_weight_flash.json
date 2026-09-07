@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "minecraft:experience_bottle",
+      "required": false
+    },
+    {
+      "id": "legendary_additions:tiny_xp_bottle",
+      "required": false
+    },
+    {
+      "id": "legendary_additions:common_xp_bottle",
+      "required": false
+    },
+    {
+      "id": "legendary_additions:rare_xp_bottle",
+      "required": false
+    },
+    {
+      "id": "legendary_additions:epic_xp_bottle",
+      "required": false
+    },
+    {
+      "id": "legendary_additions:legendary_xp_bottle",
+      "required": false
+    },
+    {
+      "id": "legendary_additions:experience_nugget",
+      "required": false
+    }
+  ]
+}

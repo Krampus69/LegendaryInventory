@@ -1,0 +1,27 @@
+{
+  "id": "legendaryinventory",
+  "enabled": true,
+  "icon": {
+    "type": "texture",
+    "texture": "legendarytabs:textures/gui/inventory.png",
+    "u": 0,
+    "v": 0
+  },
+  "screen_open_action": {
+    "type": "key_press",
+    "key_binding": "key.inventory",
+    "close_screen_first": true
+  },
+  "target_screen_class": "com.krampus.legendaryinventory.client.gui.LIScreen",
+  "tooltip": "tooltip.legendarytabs.tab.inventory.description",
+  "required_mods": [
+    "legendaryinventory"
+  ],
+  "screen_sizes": {
+    "com.krampus.legendaryinventory.client.gui.LIScreen": {
+      "width": 176,
+      "height": 166,
+      "priority": 10
+    }
+  }
+}
