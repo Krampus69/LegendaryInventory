@@ -1,0 +1,8 @@
+.gradle/
+build/
+run/
+run-data/
+libs/
+.idea/
+*.iml
+errors.txt
