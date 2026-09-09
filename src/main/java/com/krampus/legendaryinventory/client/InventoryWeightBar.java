@@ -2,13 +2,14 @@ package com.krampus.legendaryinventory.client;
 
 import com.krampus.legendaryinventory.LegendaryInventory;
 import com.krampus.legendaryinventory.client.gui.LIScreen;
+import com.krampus.legendaryinventory.menu.ScrollRegistry;
 import com.krampus.legendaryinventory.weight.CarryLoad;
 import com.krampus.legendaryinventory.weight.WeightTable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -25,12 +26,12 @@ public final class InventoryWeightBar {
     private static final int TEX_H = 64;
 
     private static final int BG_X = 0;
-    private static final int BG_Y = 162;
+    private static final int BG_BOTTOM_OFFSET = 4;
     private static final int BG_W = 176;
     private static final int BG_H = 13;
 
     private static final int BAR_X = 7;
-    private static final int BAR_Y = 164;
+    private static final int BAR_Y = 2;
     private static final int BAR_W = 141;
     private static final int BAR_H = 5;
 
@@ -45,7 +46,7 @@ public final class InventoryWeightBar {
     private InventoryWeightBar() {}
 
     private static LocalPlayer visibleFor(AbstractContainerScreen<?> screen) {
-        if (!(screen instanceof InventoryScreen) || screen instanceof LIScreen) {
+        if (screen instanceof LIScreen || !ScrollRegistry.has(screen.getMenu())) {
             return null;
         }
         LocalPlayer player = Minecraft.getInstance().player;
@@ -64,8 +65,8 @@ public final class InventoryWeightBar {
         if (visibleFor(screen) == null) {
             return false;
         }
-        int x = screen.getGuiLeft() + BG_X;
-        int y = screen.getGuiTop() + BG_Y;
+        int x = barLeft(screen);
+        int y = barTop(screen);
         return mx >= x && mx < x + BG_W && my >= y && my < y + BG_H;
     }
 
@@ -73,8 +74,8 @@ public final class InventoryWeightBar {
         if (visibleFor(screen) == null) {
             return false;
         }
-        int x = screen.getGuiLeft() + BG_X + SEARCH_X;
-        int y = screen.getGuiTop() + BG_Y + SEARCH_Y;
+        int x = barLeft(screen) + SEARCH_X;
+        int y = barTop(screen) + SEARCH_Y;
         return mx >= x && mx < x + SEARCH_SIZE && my >= y && my < y + SEARCH_SIZE;
     }
 
@@ -82,23 +83,28 @@ public final class InventoryWeightBar {
         return visibleFor(screen) != null;
     }
 
+    private static int barLeft(AbstractContainerScreen<?> screen) {
+        return screen.getGuiLeft() + (screen.getXSize() - BG_W) / 2 + BG_X;
+    }
+
+    private static int barTop(AbstractContainerScreen<?> screen) {
+        return screen.getGuiTop() + screen.getYSize() - BG_BOTTOM_OFFSET;
+    }
+
     public static void render(GuiGraphics g, AbstractContainerScreen<?> screen) {
         LocalPlayer player = visibleFor(screen);
         if (player == null) {
             return;
         }
-        int left = screen.getGuiLeft();
-        int top = screen.getGuiTop();
-
-        g.blit(TEXTURE, left + BG_X, top + BG_Y, 0, 0.0F, 0.0F, BG_W, BG_H, TEX_W, TEX_H);
-        g.blit(TEXTURE, left + BAR_X, top + BAR_Y, 0, 0.0F, (float) V_EMPTY, BAR_W, BAR_H, TEX_W, TEX_H);
+        g.blit(TEXTURE, barLeft(screen), barTop(screen), 0, 0.0F, 0.0F, BG_W, BG_H, TEX_W, TEX_H);
+        g.blit(TEXTURE, barLeft(screen) + BAR_X, barTop(screen) + BAR_Y, 0, 0.0F, (float) V_EMPTY, BAR_W, BAR_H, TEX_W, TEX_H);
 
         int carried = carried(player);
         int capacity = CarryLoad.capacity(player);
         float ratio = capacity <= 0 ? 1.0F : carried / (float) capacity;
         int filled = Math.round(Math.min(Math.max(ratio, 0.0F), 1.0F) * BAR_W);
         if (filled > 0) {
-            g.blit(TEXTURE, left + BAR_X, top + BAR_Y, 0, 0.0F, (float) V_FULL, filled, BAR_H, TEX_W, TEX_H);
+            g.blit(TEXTURE, barLeft(screen) + BAR_X, barTop(screen) + BAR_Y, 0, 0.0F, (float) V_FULL, filled, BAR_H, TEX_W, TEX_H);
         }
     }
 
@@ -107,8 +113,8 @@ public final class InventoryWeightBar {
         if (player == null) {
             return;
         }
-        InventoryScreen inventory = (InventoryScreen) screen;
-        if (inventory.getRecipeBookComponent().isVisible() && screen.width < NARROW_WIDTH) {
+        if (screen instanceof RecipeUpdateListener listener
+            && listener.getRecipeBookComponent().isVisible() && screen.width < NARROW_WIDTH) {
             return;
         }
 
@@ -118,8 +124,8 @@ public final class InventoryWeightBar {
             return;
         }
 
-        int x = screen.getGuiLeft() + BG_X;
-        int y = screen.getGuiTop() + BG_Y;
+        int x = barLeft(screen);
+        int y = barTop(screen);
         if (mx < x || mx >= x + BG_W || my < y || my >= y + BG_H) {
             return;
         }

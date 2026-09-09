@@ -57,16 +57,23 @@ public final class ClientMenuAugmentEvents {
         MenuAugment.augment(screen.getMenu(), mc.player);
         if (screen instanceof InventoryScreen && !(screen instanceof LIScreen)) {
             resetScroll(screen.getMenu());
-            if (InventoryWeightBar.available(screen)) {
-                InventorySearchBar.attach(screen);
-            }
+        }
+        if (InventoryWeightBar.available(screen)) {
+            InventorySearchBar.attach(screen);
         }
     }
 
     @SubscribeEvent
     public static void onScreenClosing(ScreenEvent.Closing event) {
-        if (event.getScreen() instanceof InventoryScreen) {
-            InventorySearchBar.detach();
+        if (!(event.getScreen() instanceof AbstractContainerScreen<?> screen)) {
+            return;
+        }
+        InventorySearchBar.detach();
+        if (screen instanceof InventoryScreen) {
+            ScrollContext context = ScrollRegistry.get(screen.getMenu());
+            if (context != null) {
+                context.trim();
+            }
         }
     }
 
@@ -118,7 +125,7 @@ public final class ClientMenuAugmentEvents {
         int max = context.maxScrollRow();
         int target;
         if (max == 0 || !ClientIntroCue.consume()) {
-            target = 0;
+            target = Math.min(context.firstOccupiedRow(), max);
             ScrollAnimator.reset(context);
         } else if (max == 1) {
             ClientIntroCue.show(Component.translatable("gui.legendaryinventory.rows.hint"));
@@ -266,9 +273,7 @@ public final class ClientMenuAugmentEvents {
         }
         InventoryWeightBar.render(event.getGuiGraphics(), screen);
         clampScroll(screen.getMenu());
-        if (screen instanceof InventoryScreen) {
-            InventorySearchBar.render(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), 0.0F);
-        }
+        InventorySearchBar.render(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), 0.0F);
         ScrollContext context = ScrollRegistry.get(screen.getMenu());
         if (!ScrollAnimator.animating(context)) {
             return;
@@ -276,21 +281,18 @@ public final class ClientMenuAugmentEvents {
         ScrollAnimator.render(event.getGuiGraphics(), Minecraft.getInstance().font, screen, context);
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onMouseScrolled(ScreenEvent.MouseScrolled.Pre event) {
         AbstractContainerScreen<?> screen = augmented(event.getScreen());
         if (screen == null) {
             return;
         }
+        if (!overGrid(screen, event.getMouseX(), event.getMouseY()) || Screen.hasControlDown()) {
+            return;
+        }
+        event.setCanceled(true);
         ScrollContext context = ScrollRegistry.get(screen.getMenu());
-        if (context.maxScrollRow() <= 0) {
-            return;
-        }
-        if (!overGrid(screen, event.getMouseX(), event.getMouseY())) {
-            return;
-        }
-        if (mouseButtonHeld()) {
-            event.setCanceled(true);
+        if (context.maxScrollRow() <= 0 || mouseButtonHeld()) {
             return;
         }
 
@@ -299,7 +301,6 @@ public final class ClientMenuAugmentEvents {
             context.setScrollRow(target);
             LINet.toServer(new ScrollPacket(target));
         }
-        event.setCanceled(true);
     }
 
     private static void clampScroll(AbstractContainerMenu menu) {

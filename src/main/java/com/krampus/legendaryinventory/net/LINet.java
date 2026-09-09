@@ -48,11 +48,17 @@ public final class LINet {
         CHANNEL.messageBuilder(IntroCuePacket.class, nextId++, NetworkDirection.PLAY_TO_CLIENT)
             .encoder(IntroCuePacket::encode).decoder(IntroCuePacket::new).consumerMainThread(IntroCuePacket::handle).add();
 
+        CHANNEL.messageBuilder(PickupNotifyPacket.class, nextId++, NetworkDirection.PLAY_TO_CLIENT)
+            .encoder(PickupNotifyPacket::encode).decoder(PickupNotifyPacket::new).consumerMainThread(PickupNotifyPacket::handle).add();
+
         CHANNEL.messageBuilder(ClearExtendedPacket.class, nextId++, NetworkDirection.PLAY_TO_SERVER)
             .encoder(ClearExtendedPacket::encode).decoder(ClearExtendedPacket::new).consumerMainThread(ClearExtendedPacket::handle).add();
 
         CHANNEL.messageBuilder(CollectPacket.class, nextId++, NetworkDirection.PLAY_TO_SERVER)
             .encoder(CollectPacket::encode).decoder(CollectPacket::new).consumerMainThread(CollectPacket::handle).add();
+
+        CHANNEL.messageBuilder(RecipeTransferPacket.class, nextId++, NetworkDirection.PLAY_TO_SERVER)
+            .encoder(RecipeTransferPacket::encode).decoder(RecipeTransferPacket::new).consumerMainThread(RecipeTransferPacket::handle).add();
     }
 
     public static void toPlayer(ServerPlayer player, Object msg) {

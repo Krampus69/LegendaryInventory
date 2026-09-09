@@ -46,6 +46,10 @@ public final class MenuAugmentEvents {
     @SubscribeEvent
     public static void onContainerClose(PlayerContainerEvent.Close event) {
         if (event.getContainer() == event.getEntity().inventoryMenu) {
+            ScrollContext context = ScrollRegistry.get(event.getContainer());
+            if (context != null) {
+                context.trim();
+            }
             return;
         }
         ScrollRegistry.detach(event.getContainer());

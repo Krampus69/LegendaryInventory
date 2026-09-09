@@ -3,6 +3,9 @@ package com.krampus.legendaryinventory.event;
 import com.krampus.legendaryinventory.LegendaryInventory;
 import com.krampus.legendaryinventory.inventory.LICaps;
 import com.krampus.legendaryinventory.item.LIItems;
+import com.krampus.legendaryinventory.net.LINet;
+import com.krampus.legendaryinventory.net.PickupNotifyPacket;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -24,6 +27,9 @@ public final class PickupEvents {
             return;
         }
 
+        if (event.getItem().hasPickUpDelay()) {
+            return;
+        }
         ItemStack stack = event.getItem().getItem();
         if (stack.isEmpty() || stack.is(LIItems.SACK.get())) {
             return;
@@ -34,7 +40,9 @@ public final class PickupEvents {
         }
 
         int before = stack.getCount();
+        ItemStack original = stack.copy();
         player.getInventory().add(stack);
+        int afterVanilla = stack.getCount();
 
         if (!stack.isEmpty()) {
             player.getCapability(LICaps.EXTENDED).ifPresent(ext -> {
@@ -43,6 +51,10 @@ public final class PickupEvents {
             });
         }
 
+        int toExtended = afterVanilla - stack.getCount();
+        if (afterVanilla == before && toExtended > 0 && player instanceof ServerPlayer sp) {
+            LINet.toPlayer(sp, new PickupNotifyPacket(original.copyWithCount(toExtended)));
+        }
         if (stack.getCount() < before) {
             event.setResult(Event.Result.ALLOW);
         }

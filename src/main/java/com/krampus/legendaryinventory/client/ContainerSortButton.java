@@ -3,12 +3,10 @@ package com.krampus.legendaryinventory.client;
 import com.krampus.legendaryinventory.LegendaryInventory;
 import com.krampus.legendaryinventory.config.LIConfig;
 import com.krampus.legendaryinventory.menu.LISlot;
-import com.krampus.legendaryinventory.menu.ScrollContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -26,32 +24,24 @@ public final class ContainerSortButton {
     private static final int SIZE = 12;
     private static final int TEX_W = 12;
     private static final int TEX_H = 24;
-    private static final int GAP_ABOVE_GRID = 14;
-    private static final int GRID_WIDTH = ScrollContext.COLS * 18;
     private static final int HINT_COLOR = 0x9365A2;
-    private static final int INVENTORY_X = 156;
-    private static final int INVENTORY_Y = 6;
+    private static final int RIGHT_MARGIN = 20;
+    private static final int TOP_MARGIN = 6;
 
     private ContainerSortButton() {}
 
     private static int[] anchor(AbstractContainerScreen<?> screen) {
-        if (screen instanceof InventoryScreen) {
-            return new int[] {INVENTORY_X, INVENTORY_Y};
-        }
-        int originX = Integer.MAX_VALUE;
-        int originY = Integer.MAX_VALUE;
+        boolean augmented = false;
         for (Slot slot : screen.getMenu().slots) {
             if (slot instanceof LISlot) {
-                originX = Math.min(originX, slot.x);
-                originY = Math.min(originY, slot.y);
+                augmented = true;
+                break;
             }
         }
-        if (originX == Integer.MAX_VALUE) {
+        if (!augmented) {
             return null;
         }
-        int x = originX + GRID_WIDTH - SIZE - 2;
-        int y = originY - GAP_ABOVE_GRID;
-        return new int[] {x, y};
+        return new int[] {screen.getXSize() - RIGHT_MARGIN, TOP_MARGIN};
     }
 
     public static boolean enabled() {

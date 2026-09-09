@@ -97,6 +97,20 @@ public class ScrollContext {
         return (visibleCount() + COLS - 1) / COLS;
     }
 
+    public void trim() {
+        stickyVisible = 0;
+        cachedTime = -1L;
+    }
+
+    public int firstOccupiedRow() {
+        for (int i = 0; i < backing.getSlots(); i++) {
+            if (!backing.getStackInSlot(i).isEmpty()) {
+                return i / COLS;
+            }
+        }
+        return 0;
+    }
+
     public int maxScrollRow() {
         return Math.max(0, totalRows() - VISIBLE_ROWS);
     }
