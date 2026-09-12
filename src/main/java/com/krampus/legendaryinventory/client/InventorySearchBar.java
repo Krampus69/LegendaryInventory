@@ -31,14 +31,11 @@ public final class InventorySearchBar {
     private static final int TEX_W = 256;
     private static final int TEX_H = 64;
 
-    private static final int PANEL_W = 176;
-    private static final int PANEL_H = 175;
     private static final int FRAME_U = 0;
     private static final int FRAME_V = 43;
     private static final int FRAME_W = 156;
     private static final int FRAME_H = 19;
-    private static final int FRAME_X = (PANEL_W - FRAME_W) / 2;
-    private static final int FRAME_Y = PANEL_H;
+    private static final int FRAME_BELOW_PANEL = 9;
 
     private static final int TEXT_X = 9;
     private static final int TEXT_Y = 4;
@@ -120,7 +117,7 @@ public final class InventorySearchBar {
             return;
         }
         position();
-        g.blit(TEXTURE, screen.getGuiLeft() + FRAME_X, screen.getGuiTop() + FRAME_Y, 0,
+        g.blit(TEXTURE, frameLeft(), frameTop(), 0,
             (float) FRAME_U, (float) FRAME_V, FRAME_W, FRAME_H, TEX_W, TEX_H);
         box.render(g, mx, my, partial);
     }
@@ -129,8 +126,8 @@ public final class InventorySearchBar {
         if (!open || box == null || screen == null) {
             return false;
         }
-        int fx = screen.getGuiLeft() + FRAME_X;
-        int fy = screen.getGuiTop() + FRAME_Y;
+        int fx = frameLeft();
+        int fy = frameTop();
         boolean inside = mx >= fx && mx < fx + FRAME_W && my >= fy && my < fy + FRAME_H;
         if (inside) {
             focus(true);
@@ -185,10 +182,18 @@ public final class InventorySearchBar {
         return true;
     }
 
+    private static int frameLeft() {
+        return screen.getGuiLeft() + (screen.getXSize() - FRAME_W) / 2;
+    }
+
+    private static int frameTop() {
+        return screen.getGuiTop() + screen.getYSize() + FRAME_BELOW_PANEL;
+    }
+
     private static void position() {
         if (box != null && screen != null) {
-            box.setX(screen.getGuiLeft() + FRAME_X + TEXT_X);
-            box.setY(screen.getGuiTop() + FRAME_Y + TEXT_Y);
+            box.setX(frameLeft() + TEXT_X);
+            box.setY(frameTop() + TEXT_Y);
         }
     }
 
