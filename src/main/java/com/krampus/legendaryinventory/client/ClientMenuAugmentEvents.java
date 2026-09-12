@@ -2,29 +2,22 @@ package com.krampus.legendaryinventory.client;
 
 import com.krampus.legendaryinventory.LegendaryInventory;
 import com.krampus.legendaryinventory.client.gui.LIScreen;
-import com.krampus.legendaryinventory.menu.LISlot;
 import com.krampus.legendaryinventory.menu.MenuAugment;
 import com.krampus.legendaryinventory.menu.ScrollContext;
 import com.krampus.legendaryinventory.menu.ScrollRegistry;
-import com.krampus.legendaryinventory.menu.HiddenCollect;
-import com.krampus.legendaryinventory.net.CollectPacket;
 import com.krampus.legendaryinventory.net.LINet;
 import com.krampus.legendaryinventory.net.ScrollPacket;
 import com.mojang.blaze3d.platform.InputConstants;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ContainerScreenEvent;
 import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -34,14 +27,6 @@ import org.lwjgl.glfw.GLFW;
 public final class ClientMenuAugmentEvents {
 
     private static final long OPEN_CUE_HOLD_MILLIS = 250L;
-    private static final long DOUBLE_CLICK_MILLIS = 250L;
-
-    private static Slot lastClickSlot = null;
-    private static long lastClickTime = 0L;
-    private static int lastClickButton = -1;
-    private static boolean doubleClick = false;
-
-    private static final int SLOT_SIZE = 16;
 
     private ClientMenuAugmentEvents() {}
 
@@ -78,28 +63,6 @@ public final class ClientMenuAugmentEvents {
     }
 
     @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) {
-            InventorySearchBar.tick();
-        }
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onCharTyped(ScreenEvent.CharacterTyped.Pre event) {
-        if (augmented(event.getScreen()) != null && InventorySearchBar.charTyped(event.getCodePoint(), event.getModifiers())) {
-            event.setCanceled(true);
-        }
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onKeyPressedPre(ScreenEvent.KeyPressed.Pre event) {
-        if (augmented(event.getScreen()) != null
-            && InventorySearchBar.keyPressed(event.getKeyCode(), event.getScanCode(), event.getModifiers())) {
-            event.setCanceled(true);
-        }
-    }
-
-    @SubscribeEvent
     public static void onClientLogin(ClientPlayerNetworkEvent.LoggingIn event) {
         MenuAugment.augment(event.getPlayer().inventoryMenu, event.getPlayer());
     }
@@ -107,14 +70,6 @@ public final class ClientMenuAugmentEvents {
     @SubscribeEvent
     public static void onClientClone(ClientPlayerNetworkEvent.Clone event) {
         MenuAugment.augment(event.getNewPlayer().inventoryMenu, event.getNewPlayer());
-    }
-
-    private static boolean isSortKey(int keyCode, int scanCode) {
-        InputConstants.Key key = LIKeys.SORT.getKey();
-        if (key.getType() == InputConstants.Type.SCANCODE) {
-            return key.getValue() == scanCode;
-        }
-        return key.getType() == InputConstants.Type.KEYSYM && key.getValue() == keyCode;
     }
 
     private static void resetScroll(AbstractContainerMenu menu) {
@@ -144,7 +99,7 @@ public final class ClientMenuAugmentEvents {
 
     @SubscribeEvent
     public static void onRenderPre(ScreenEvent.Render.Pre event) {
-        AbstractContainerScreen<?> screen = augmented(event.getScreen());
+        AbstractContainerScreen<?> screen = AugmentedScreens.of(event.getScreen());
         if (screen == null) {
             return;
         }
@@ -154,120 +109,8 @@ public final class ClientMenuAugmentEvents {
     }
 
     @SubscribeEvent
-    public static void onRenderForeground(ContainerScreenEvent.Render.Foreground event) {
-        AbstractContainerScreen<?> screen = augmented(event.getContainerScreen());
-        if (screen == null) {
-            return;
-        }
-        ContainerSortButton.renderForeground(event.getGuiGraphics(), screen, event.getMouseX(), event.getMouseY());
-    }
-
-    @SubscribeEvent
-    public static void onRenderPost(ScreenEvent.Render.Post event) {
-        AbstractContainerScreen<?> screen = augmented(event.getScreen());
-        if (screen == null) {
-            return;
-        }
-        ContainerSortButton.renderTooltip(event.getGuiGraphics(), screen, event.getMouseX(), event.getMouseY());
-        InventoryWeightBar.renderTooltip(event.getGuiGraphics(), screen, event.getMouseX(), event.getMouseY());
-        ClientIntroCue.render(event.getGuiGraphics(), screen);
-    }
-
-    @SubscribeEvent
-    public static void onTrackClick(ScreenEvent.MouseButtonPressed.Pre event) {
-        AbstractContainerScreen<?> screen = augmented(event.getScreen());
-        if (screen == null) {
-            return;
-        }
-        Slot slot = slotAt(screen, event.getMouseX(), event.getMouseY());
-        long now = Util.getMillis();
-        doubleClick = slot != null && slot == lastClickSlot
-            && now - lastClickTime < DOUBLE_CLICK_MILLIS
-            && lastClickButton == event.getButton();
-        lastClickSlot = slot;
-        lastClickTime = now;
-        lastClickButton = event.getButton();
-    }
-
-    @SubscribeEvent
-    public static void onTrackRelease(ScreenEvent.MouseButtonReleased.Post event) {
-        AbstractContainerScreen<?> screen = augmented(event.getScreen());
-        if (screen == null || !doubleClick) {
-            return;
-        }
-        doubleClick = false;
-        lastClickTime = 0L;
-        if (event.getButton() != 0 || Screen.hasShiftDown()) {
-            return;
-        }
-        Slot slot = slotAt(screen, event.getMouseX(), event.getMouseY());
-        if (slot == null || !screen.getMenu().canTakeItemForPickAll(ItemStack.EMPTY, slot)) {
-            return;
-        }
-        if (HiddenCollect.collect(screen.getMenu())) {
-            LINet.toServer(new CollectPacket());
-        }
-    }
-
-    private static Slot slotAt(AbstractContainerScreen<?> screen, double mx, double my) {
-        int left = screen.getGuiLeft();
-        int top = screen.getGuiTop();
-        for (Slot slot : screen.getMenu().slots) {
-            if (!slot.isActive()) {
-                continue;
-            }
-            int x = left + slot.x;
-            int y = top + slot.y;
-            if (mx >= x - 1 && mx < x + SLOT_SIZE + 1 && my >= y - 1 && my < y + SLOT_SIZE + 1) {
-                return slot;
-            }
-        }
-        return null;
-    }
-
-    @SubscribeEvent
-    public static void onMousePressed(ScreenEvent.MouseButtonPressed.Pre event) {
-        AbstractContainerScreen<?> screen = augmented(event.getScreen());
-        if (screen == null) {
-            return;
-        }
-        if (InventorySearchBar.mouseClicked(event.getMouseX(), event.getMouseY(), event.getButton())) {
-            event.setCanceled(true);
-            return;
-        }
-        if (event.getButton() != 0) {
-            return;
-        }
-        if (InventoryWeightBar.searchHovered(screen, event.getMouseX(), event.getMouseY())) {
-            event.setCanceled(true);
-            InventorySearchBar.toggle();
-            return;
-        }
-        if (!ContainerSortButton.hovered(screen, event.getMouseX(), event.getMouseY())) {
-            return;
-        }
-        event.setCanceled(true);
-        InventorySearchBar.clear();
-        ContainerSortButton.click();
-    }
-
-    @SubscribeEvent
-    public static void onKeyPressed(ScreenEvent.KeyPressed.Post event) {
-        AbstractContainerScreen<?> screen = augmented(event.getScreen());
-        if (screen == null) {
-            return;
-        }
-        if (!isSortKey(event.getKeyCode(), event.getScanCode())) {
-            return;
-        }
-        InventorySearchBar.clear();
-        ContainerSortButton.click();
-        event.setCanceled(true);
-    }
-
-    @SubscribeEvent
     public static void onRenderBackground(ContainerScreenEvent.Render.Background event) {
-        AbstractContainerScreen<?> screen = augmented(event.getContainerScreen());
+        AbstractContainerScreen<?> screen = AugmentedScreens.of(event.getContainerScreen());
         if (screen == null) {
             return;
         }
@@ -281,13 +124,61 @@ public final class ClientMenuAugmentEvents {
         ScrollAnimator.render(event.getGuiGraphics(), Minecraft.getInstance().font, screen, context);
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onMouseScrolled(ScreenEvent.MouseScrolled.Pre event) {
-        AbstractContainerScreen<?> screen = augmented(event.getScreen());
+    @SubscribeEvent
+    public static void onRenderForeground(ContainerScreenEvent.Render.Foreground event) {
+        AbstractContainerScreen<?> screen = AugmentedScreens.of(event.getContainerScreen());
         if (screen == null) {
             return;
         }
-        if (!overGrid(screen, event.getMouseX(), event.getMouseY()) || Screen.hasControlDown()) {
+        ContainerSortButton.renderForeground(event.getGuiGraphics(), screen, event.getMouseX(), event.getMouseY());
+    }
+
+    @SubscribeEvent
+    public static void onRenderPost(ScreenEvent.Render.Post event) {
+        AbstractContainerScreen<?> screen = AugmentedScreens.of(event.getScreen());
+        if (screen == null) {
+            return;
+        }
+        ContainerSortButton.renderTooltip(event.getGuiGraphics(), screen, event.getMouseX(), event.getMouseY());
+        InventoryWeightBar.renderTooltip(event.getGuiGraphics(), screen, event.getMouseX(), event.getMouseY());
+        ClientIntroCue.render(event.getGuiGraphics(), screen);
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onSortClick(ScreenEvent.MouseButtonPressed.Pre event) {
+        AbstractContainerScreen<?> screen = AugmentedScreens.of(event.getScreen());
+        if (screen == null || event.getButton() != 0) {
+            return;
+        }
+        if (!ContainerSortButton.hovered(screen, event.getMouseX(), event.getMouseY())) {
+            return;
+        }
+        event.setCanceled(true);
+        InventorySearchBar.clear();
+        ContainerSortButton.click();
+    }
+
+    @SubscribeEvent
+    public static void onSortKey(ScreenEvent.KeyPressed.Post event) {
+        AbstractContainerScreen<?> screen = AugmentedScreens.of(event.getScreen());
+        if (screen == null) {
+            return;
+        }
+        if (!isSortKey(event.getKeyCode(), event.getScanCode())) {
+            return;
+        }
+        InventorySearchBar.clear();
+        ContainerSortButton.click();
+        event.setCanceled(true);
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onMouseScrolled(ScreenEvent.MouseScrolled.Pre event) {
+        AbstractContainerScreen<?> screen = AugmentedScreens.of(event.getScreen());
+        if (screen == null) {
+            return;
+        }
+        if (!AugmentedScreens.overGrid(screen, event.getMouseX(), event.getMouseY()) || Screen.hasControlDown()) {
             return;
         }
         event.setCanceled(true);
@@ -301,6 +192,14 @@ public final class ClientMenuAugmentEvents {
             context.setScrollRow(target);
             LINet.toServer(new ScrollPacket(target));
         }
+    }
+
+    private static boolean isSortKey(int keyCode, int scanCode) {
+        InputConstants.Key key = LIKeys.SORT.getKey();
+        if (key.getType() == InputConstants.Type.SCANCODE) {
+            return key.getValue() == scanCode;
+        }
+        return key.getType() == InputConstants.Type.KEYSYM && key.getValue() == keyCode;
     }
 
     private static void clampScroll(AbstractContainerMenu menu) {
@@ -319,41 +218,5 @@ public final class ClientMenuAugmentEvents {
         long window = Minecraft.getInstance().getWindow().getWindow();
         return GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS
             || GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
-    }
-
-    private static AbstractContainerScreen<?> augmented(Screen candidate) {
-        if (!(candidate instanceof AbstractContainerScreen<?> screen)) {
-            return null;
-        }
-        if (screen instanceof LIScreen) {
-            return null;
-        }
-        return ScrollRegistry.has(screen.getMenu()) ? screen : null;
-    }
-
-    private static boolean overGrid(AbstractContainerScreen<?> screen, double mouseX, double mouseY) {
-        int minX = Integer.MAX_VALUE;
-        int minY = Integer.MAX_VALUE;
-        int maxX = Integer.MIN_VALUE;
-        int maxY = Integer.MIN_VALUE;
-        boolean any = false;
-
-        for (Slot slot : screen.getMenu().slots) {
-            if (!(slot instanceof LISlot)) {
-                continue;
-            }
-            any = true;
-            minX = Math.min(minX, slot.x);
-            minY = Math.min(minY, slot.y);
-            maxX = Math.max(maxX, slot.x + SLOT_SIZE);
-            maxY = Math.max(maxY, slot.y + SLOT_SIZE);
-        }
-        if (!any) {
-            return false;
-        }
-
-        double relX = mouseX - screen.getGuiLeft();
-        double relY = mouseY - screen.getGuiTop();
-        return relX >= minX && relX < maxX && relY >= minY && relY < maxY;
     }
 }

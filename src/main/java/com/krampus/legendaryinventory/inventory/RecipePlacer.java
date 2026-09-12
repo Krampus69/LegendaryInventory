@@ -35,7 +35,7 @@ public final class RecipePlacer {
         if (placeAll) {
             crafts = Integer.MAX_VALUE;
             for (int i = 0; i < ingredients.size(); i++) {
-                int available = countMatching(player.getInventory(), extended, ingredients.get(i), ingredients, i);
+                int available = countMatching(player.getInventory(), extended, ingredients.get(i), ingredients);
                 crafts = Math.min(crafts, available);
             }
             crafts = Math.max(1, Math.min(crafts, 64));
@@ -107,7 +107,7 @@ public final class RecipePlacer {
     }
 
     private static int countMatching(Inventory inventory, ExtendedInventory extended, Ingredient ingredient,
-                                     List<Ingredient> all, int index) {
+                                     List<Ingredient> all) {
         int total = 0;
         for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
             ItemStack stack = inventory.getItem(i);
@@ -122,8 +122,8 @@ public final class RecipePlacer {
             }
         }
         int sharing = 0;
-        for (int i = 0; i < all.size(); i++) {
-            if (all.get(i) == ingredient || (i <= index && sameOptions(all.get(i), ingredient))) {
+        for (Ingredient other : all) {
+            if (other == ingredient || sameOptions(other, ingredient)) {
                 sharing++;
             }
         }
