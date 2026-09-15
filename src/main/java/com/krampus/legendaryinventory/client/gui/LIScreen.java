@@ -69,18 +69,19 @@ public class LIScreen extends EffectRenderingInventoryScreen<LIMenu> implements 
 
     private static final int CREATIVE_W = 195;
     private static final int CREATIVE_H = 136;
-    private static final int CREATIVE_SORT_X = 175;
+    private static final int CREATIVE_SORT_X = 178;
     private static final int PAGE_BUTTON = 20;
     private static final int PAGE_BUTTON_Y = 50;
 
-    private static final int SORT_X = 156;
-    private static final int SORT_Y = 6;
-    private static final int SORT_SIZE = 12;
+    private static final int SORT_X = 159;
+    private static final int SORT_Y = 5;
+    private static final int SORT_SIZE = 10;
     private static final int HINT_COLOR = 0x9365A2;
 
     private final RecipeBookComponent recipeBookComponent = new RecipeBookComponent();
     private CreativeTabStrip tabStrip;
     private TextureButton sortButton;
+    private boolean sortKeyHeld;
 
     private boolean widthTooNarrow;
     private float mouseX;
@@ -123,7 +124,12 @@ public class LIScreen extends EffectRenderingInventoryScreen<LIMenu> implements 
 
         this.sortButton = new TextureButton(
                 this.leftPos + sortX(), this.topPos + SORT_Y, SORT_SIZE, SORT_BUTTON,
-                () -> LINet.toServer(new SortPacket(hasControlDown())));
+                () -> LINet.toServer(new SortPacket(hasControlDown()))) {
+            @Override
+            public boolean isHoveredOrFocused() {
+                return sortKeyHeld || super.isHoveredOrFocused();
+            }
+        };
         this.sortButton.setTooltip(Tooltip.create(
                 Component.translatable("gui.legendaryinventory.sort")
                         .append("\n")
@@ -249,6 +255,9 @@ public class LIScreen extends EffectRenderingInventoryScreen<LIMenu> implements 
         if (super.mouseScrolled(mx, my, deltaX, delta)) {
             return true;
         }
+        if (hasControlDown()) {
+            return false;
+        }
         if (menu.maxScrollRow() <= 0) {
             return false;
         }
@@ -346,6 +355,7 @@ public class LIScreen extends EffectRenderingInventoryScreen<LIMenu> implements 
             return true;
         }
         if (isSortKey(keyCode, scanCode)) {
+            this.sortKeyHeld = true;
             if (this.minecraft != null) {
                 this.minecraft.getSoundManager().play(
                         SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
@@ -354,6 +364,14 @@ public class LIScreen extends EffectRenderingInventoryScreen<LIMenu> implements 
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+        if (isSortKey(keyCode, scanCode)) {
+            this.sortKeyHeld = false;
+        }
+        return super.keyReleased(keyCode, scanCode, modifiers);
     }
 
     @Override
@@ -521,7 +539,7 @@ public class LIScreen extends EffectRenderingInventoryScreen<LIMenu> implements 
         return false;
     }
 
-    private static final class TextureButton extends AbstractButton {
+    private static class TextureButton extends AbstractButton {
 
         private final ResourceLocation texture;
         private final int size;

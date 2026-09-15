@@ -83,7 +83,7 @@ public final class LIConfig {
             b.pop();
 
             b.push("capacity");
-            baseCapacity = b.comment("Carry capacity in pods before any penalty").defineInRange("base", 2000, 1, 1000000);
+            baseCapacity = b.comment("Carry capacity in pods before any penalty").defineInRange("base", 1000, 1, 1000000);
             maxCapacityEnabled = b.comment(
                 "true: capacity cannot be raised above the max value below.",
                 "false: no limit."
@@ -97,9 +97,9 @@ public final class LIConfig {
                 "Enable the weight tablets: dungeon loot that permanently raises carry capacity.",
                 "false: tablets do nothing when used, do not appear in loot or the creative tab."
             ).define("enabled", true);
-            tabletTier1 = b.comment("Pods granted by Weight Tablet I").defineInRange("tier1", 50, 1, 1000000);
-            tabletTier2 = b.comment("Pods granted by Weight Tablet II").defineInRange("tier2", 100, 1, 1000000);
-            tabletTier3 = b.comment("Pods granted by Weight Tablet III").defineInRange("tier3", 250, 1, 1000000);
+            tabletTier1 = b.comment("Pods granted by Weight Tablet I").defineInRange("tier1", 20, 1, 1000000);
+            tabletTier2 = b.comment("Pods granted by Weight Tablet II").defineInRange("tier2", 50, 1, 1000000);
+            tabletTier3 = b.comment("Pods granted by Weight Tablet III").defineInRange("tier3", 100, 1, 1000000);
             b.pop();
 
             b.comment("Ratios of carried weight over capacity. 1.0 means 100%. Keep them in ascending order.").push("penalty");
@@ -159,6 +159,7 @@ public final class LIConfig {
 
         public final ModConfigSpec.EnumValue<WeightBarMode> weightBar;
         public final ModConfigSpec.BooleanValue itemTooltipWeight;
+        public final ModConfigSpec.BooleanValue scrollBarVisible;
 
         Client(ModConfigSpec.Builder b) {
             b.push("hud");
@@ -173,6 +174,12 @@ public final class LIConfig {
             itemTooltipWeight = b.comment(
                 "Show the weight number and icon next to the item name in item tooltips."
             ).define("itemWeight", true);
+            b.pop();
+
+            b.push("inventory");
+            scrollBarVisible = b.comment(
+                "Show the scroll bar next to the extended inventory rows. Toggled in game with the button on the weight bar."
+            ).define("scrollBarVisible", false);
             b.pop();
         }
     }

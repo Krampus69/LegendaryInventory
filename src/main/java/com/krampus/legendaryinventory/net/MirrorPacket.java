@@ -1,9 +1,11 @@
 package com.krampus.legendaryinventory.net;
 
+import com.krampus.legendaryinventory.inventory.CombinedInventoryHandler;
 import com.krampus.legendaryinventory.inventory.ExtendedInventory;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.BitSet;
@@ -28,6 +30,19 @@ public record MirrorPacket(boolean full, int[] indices, ItemStack[] stacks) impl
         return new MirrorPacket(true, null, stacks);
     }
 
+    public static MirrorPacket mainDelta(Inventory inventory, BitSet changed) {
+        int count = changed.cardinality();
+        int[] indices = new int[count];
+        ItemStack[] stacks = new ItemStack[count];
+        int at = 0;
+        for (int i = changed.nextSetBit(0); i >= 0; i = changed.nextSetBit(i + 1)) {
+            indices[at] = ExtendedInventory.SIZE + i;
+            stacks[at] = inventory.getItem(CombinedInventoryHandler.MAIN_OFFSET + i);
+            at++;
+        }
+        return new MirrorPacket(false, indices, stacks);
+    }
+
     public static MirrorPacket delta(ExtendedInventory handler, BitSet changed) {
         int count = changed.cardinality();
         int[] indices = new int[count];
@@ -43,7 +58,7 @@ public record MirrorPacket(boolean full, int[] indices, ItemStack[] stacks) impl
 
     private static MirrorPacket read(RegistryFriendlyByteBuf buf) {
         boolean full = buf.readBoolean();
-        int count = Math.min(buf.readVarInt(), ExtendedInventory.SIZE);
+        int count = Math.min(buf.readVarInt(), ExtendedInventory.SIZE + CombinedInventoryHandler.MAIN_COUNT);
         int[] indices = full ? null : new int[count];
         ItemStack[] stacks = new ItemStack[count];
         for (int i = 0; i < count; i++) {

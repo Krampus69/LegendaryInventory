@@ -60,6 +60,10 @@ public class ExtendedInventory extends ItemStackHandler implements IExtendedInve
         return copy;
     }
 
+    public void markChanged(int slot) {
+        onContentsChanged(slot);
+    }
+
     public void clearChanges() {
         changed.clear();
     }

@@ -14,6 +14,7 @@
   "key.legendaryinventory.show_weight": "Show Weight Bar",
   "gui.legendaryinventory.sort.weight": "Ctrl: Sort by WEIGHT",
   "gui.legendaryinventory.weight.search": "Search",
+  "gui.legendaryinventory.weight.scrollbar": "Toggle scroll bar",
   "gui.legendaryinventory.compat.waystones.blocked": "You are too heavy to use a waystone",
   "gui.legendaryinventory.mount.blocked": "Too heavy to mount",
   "gui.legendaryinventory.rows.hint": "Your inventory extends over 3 rows. Scroll down to see more.",

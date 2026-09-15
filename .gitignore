@@ -4,4 +4,6 @@ run/
 .idea/
 *.iml
 out/
+libs/
 errors.txt
+src.zip

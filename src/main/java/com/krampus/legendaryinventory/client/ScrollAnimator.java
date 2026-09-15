@@ -75,6 +75,11 @@ public final class ScrollAnimator {
         STATES.put(context, s);
     }
 
+    public static float renderRow(ScrollContext context) {
+        State s = STATES.get(context);
+        return s == null ? context.getScrollRow() : s.renderScroll;
+    }
+
     public static boolean animating(ScrollContext context) {
         State s = STATES.get(context);
         return s != null && Math.abs(context.getScrollRow() - s.renderScroll) > 0.001F;

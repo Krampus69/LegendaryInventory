@@ -17,7 +17,7 @@ public final class RecipePlacer {
 
     private RecipePlacer() {}
 
-    public static void place(ServerPlayer player, RecipeBookMenu<?> menu, ExtendedInventory extended,
+    public static void place(ServerPlayer player, RecipeBookMenu<?, ?> menu, ExtendedInventory extended,
                              CraftingRecipe recipe, boolean placeAll) {
         int gridWidth = menu.getGridWidth();
         int gridHeight = menu.getGridHeight();
@@ -67,7 +67,7 @@ public final class RecipePlacer {
         player.getInventory().setChanged();
     }
 
-    private static void clearGrid(ServerPlayer player, RecipeBookMenu<?> menu, int gridStart, int gridCount) {
+    private static void clearGrid(ServerPlayer player, RecipeBookMenu<?, ?> menu, int gridStart, int gridCount) {
         for (int i = gridStart; i < gridStart + gridCount; i++) {
             Slot slot = menu.getSlot(i);
             ItemStack stack = slot.getItem();

@@ -1,0 +1,4 @@
+legendaryinventory-1.21.1 Changelog
+1.0.0
+====
+initial release.

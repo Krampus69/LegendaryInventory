@@ -1,6 +1,7 @@
 modLoader="javafml"
 loaderVersion="${loader_version_range}"
 license="${mod_license}"
+issueTrackerURL="https://www.curseforge.com/minecraft/mc-mods/legendary-inventory/issues"
 
 [[mixins]]
 config="legendaryinventory.mixins.json"
@@ -10,6 +11,8 @@ modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 authors="${mod_authors}"
+credits="Krampus"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/legendary-inventory"
 description='''${mod_description}'''
 
 [[dependencies.${mod_id}]]
@@ -30,5 +33,47 @@ description='''${mod_description}'''
     modId="waystones"
     type="optional"
     versionRange="[21,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="jei"
+    type="optional"
+    versionRange="[19,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="loot_journal"
+    type="optional"
+    versionRange="*"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="trashslot"
+    type="optional"
+    versionRange="[21,)"
+    ordering="AFTER"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="mousetweaks"
+    type="optional"
+    versionRange="*"
+    ordering="AFTER"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="curios"
+    type="optional"
+    versionRange="*"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="cosmeticarmorreworked"
+    type="optional"
+    versionRange="*"
     ordering="AFTER"
     side="BOTH"

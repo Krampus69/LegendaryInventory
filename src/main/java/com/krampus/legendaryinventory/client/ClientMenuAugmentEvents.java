@@ -54,6 +54,8 @@ public final class ClientMenuAugmentEvents {
             return;
         }
         InventorySearchBar.detach();
+        ContainerSortButton.setKeyHeld(false);
+        InventoryScrollBar.mouseReleased();
         if (screen instanceof InventoryScreen) {
             ScrollContext context = ScrollRegistry.get(screen.getMenu());
             if (context != null) {
@@ -115,6 +117,7 @@ public final class ClientMenuAugmentEvents {
             return;
         }
         InventoryWeightBar.render(event.getGuiGraphics(), screen);
+        InventoryScrollBar.render(event.getGuiGraphics(), screen);
         clampScroll(screen.getMenu());
         InventorySearchBar.render(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), 0.0F);
         ScrollContext context = ScrollRegistry.get(screen.getMenu());
@@ -150,12 +153,34 @@ public final class ClientMenuAugmentEvents {
         if (screen == null || event.getButton() != 0) {
             return;
         }
+        if (InventoryScrollBar.mousePressed(screen, event.getMouseX(), event.getMouseY(), event.getButton())) {
+            event.setCanceled(true);
+            return;
+        }
         if (!ContainerSortButton.hovered(screen, event.getMouseX(), event.getMouseY())) {
             return;
         }
         event.setCanceled(true);
         InventorySearchBar.clear();
         ContainerSortButton.click();
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onScrollBarDrag(ScreenEvent.MouseDragged.Pre event) {
+        AbstractContainerScreen<?> screen = AugmentedScreens.of(event.getScreen());
+        if (screen == null) {
+            return;
+        }
+        if (InventoryScrollBar.mouseDragged(screen, event.getMouseX(), event.getMouseY())) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onScrollBarRelease(ScreenEvent.MouseButtonReleased.Pre event) {
+        if (event.getButton() == 0) {
+            InventoryScrollBar.mouseReleased();
+        }
     }
 
     @SubscribeEvent
@@ -168,8 +193,16 @@ public final class ClientMenuAugmentEvents {
             return;
         }
         InventorySearchBar.clear();
+        ContainerSortButton.setKeyHeld(true);
         ContainerSortButton.click();
         event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public static void onSortKeyReleased(ScreenEvent.KeyReleased.Post event) {
+        if (isSortKey(event.getKeyCode(), event.getScanCode())) {
+            ContainerSortButton.setKeyHeld(false);
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -178,7 +211,13 @@ public final class ClientMenuAugmentEvents {
         if (screen == null) {
             return;
         }
-        if (!AugmentedScreens.overGrid(screen, event.getMouseX(), event.getMouseY()) || Screen.hasControlDown()) {
+        if (!AugmentedScreens.overWindow(screen, event.getMouseX(), event.getMouseY())) {
+            return;
+        }
+        if (Screen.hasControlDown()) {
+            if (WheelTransfer.handle(screen, event.getMouseX(), event.getMouseY(), event.getScrollDeltaY())) {
+                event.setCanceled(true);
+            }
             return;
         }
         event.setCanceled(true);

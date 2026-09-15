@@ -1,7 +1,6 @@
 package com.krampus.legendaryinventory.client;
 
 import com.krampus.legendaryinventory.client.gui.LIScreen;
-import com.krampus.legendaryinventory.menu.LISlot;
 import com.krampus.legendaryinventory.menu.ScrollRegistry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -42,29 +41,9 @@ public final class AugmentedScreens {
         return null;
     }
 
-    public static boolean overGrid(AbstractContainerScreen<?> screen, double mouseX, double mouseY) {
-        int minX = Integer.MAX_VALUE;
-        int minY = Integer.MAX_VALUE;
-        int maxX = Integer.MIN_VALUE;
-        int maxY = Integer.MIN_VALUE;
-        boolean any = false;
-
-        for (Slot slot : screen.getMenu().slots) {
-            if (!(slot instanceof LISlot)) {
-                continue;
-            }
-            any = true;
-            minX = Math.min(minX, slot.x);
-            minY = Math.min(minY, slot.y);
-            maxX = Math.max(maxX, slot.x + SLOT_SIZE);
-            maxY = Math.max(maxY, slot.y + SLOT_SIZE);
-        }
-        if (!any) {
-            return false;
-        }
-
+    public static boolean overWindow(AbstractContainerScreen<?> screen, double mouseX, double mouseY) {
         double relX = mouseX - screen.getGuiLeft();
         double relY = mouseY - screen.getGuiTop();
-        return relX >= minX && relX < maxX && relY >= minY && relY < maxY;
+        return relX >= 0 && relX < screen.getXSize() && relY >= 0 && relY < screen.getYSize();
     }
 }

@@ -50,8 +50,11 @@ public class ScrollContext {
     }
 
     public void setFilter(@Nullable int[] indices) {
+        boolean changed = (this.filter == null) != (indices == null) || indices != null;
         this.filter = indices;
-        setScrollRow(0);
+        if (changed) {
+            setScrollRow(0);
+        }
     }
 
     public int visibleCount() {

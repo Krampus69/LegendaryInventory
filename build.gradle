@@ -71,6 +71,7 @@ configurations {
 
 dependencies {
     compileOnly fileTree(dir: 'libs', include: '*.jar')
+    compileOnly files("libs/trashslot-neoforge-1.21.1-21.1.11.jar")
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

@@ -57,6 +57,10 @@ public final class InventorySearchBar {
         return open && box != null && box.isFocused();
     }
 
+    public static boolean isOpen(AbstractContainerScreen<?> target) {
+        return open && screen == target;
+    }
+
     public static void attach(AbstractContainerScreen<?> target) {
         screen = target;
         box = new EditBox(Minecraft.getInstance().font, 0, 0, TEXT_W, TEXT_H, Component.empty());

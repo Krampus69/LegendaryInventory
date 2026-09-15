@@ -33,6 +33,17 @@ public class CombinedInventoryHandler implements IItemHandlerModifiable {
             : extended.getStackInSlot(slot - MAIN_COUNT);
     }
 
+    public void markChanged(int slot) {
+        if (slot < 0 || slot >= getSlots()) {
+            return;
+        }
+        if (slot < MAIN_COUNT) {
+            inventory.setChanged();
+        } else {
+            extended.markChanged(slot - MAIN_COUNT);
+        }
+    }
+
     @Override
     public void setStackInSlot(int slot, @NotNull ItemStack stack) {
         if (slot < 0 || slot >= getSlots()) {

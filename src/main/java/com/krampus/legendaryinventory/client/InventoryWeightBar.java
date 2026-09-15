@@ -39,9 +39,12 @@ public final class InventoryWeightBar {
     private static final int V_FULL = 18;
 
     private static final int NARROW_WIDTH = 379;
-    private static final int SEARCH_X = 151;
+    private static final int SEARCH_X = 150;
     private static final int SEARCH_Y = 0;
     private static final int SEARCH_SIZE = 8;
+    private static final int SCROLL_TOGGLE_X = 161;
+    private static final int SCROLL_TOGGLE_Y = 0;
+    private static final int SCROLL_TOGGLE_SIZE = 8;
 
     private InventoryWeightBar() {}
 
@@ -77,6 +80,15 @@ public final class InventoryWeightBar {
         int x = barLeft(screen) + SEARCH_X;
         int y = barTop(screen) + SEARCH_Y;
         return mx >= x && mx < x + SEARCH_SIZE && my >= y && my < y + SEARCH_SIZE;
+    }
+
+    public static boolean scrollToggleHovered(AbstractContainerScreen<?> screen, double mx, double my) {
+        if (visibleFor(screen) == null || !InventoryScrollBar.supports(screen)) {
+            return false;
+        }
+        int x = barLeft(screen) + SCROLL_TOGGLE_X;
+        int y = barTop(screen) + SCROLL_TOGGLE_Y;
+        return mx >= x && mx < x + SCROLL_TOGGLE_SIZE && my >= y && my < y + SCROLL_TOGGLE_SIZE;
     }
 
     public static boolean available(AbstractContainerScreen<?> screen) {
@@ -121,6 +133,11 @@ public final class InventoryWeightBar {
         if (searchHovered(screen, mx, my)) {
             g.renderTooltip(Minecraft.getInstance().font,
                 Component.translatable("gui.legendaryinventory.weight.search"), mx, my);
+            return;
+        }
+        if (scrollToggleHovered(screen, mx, my)) {
+            g.renderTooltip(Minecraft.getInstance().font,
+                Component.translatable("gui.legendaryinventory.weight.scrollbar"), mx, my);
             return;
         }
 

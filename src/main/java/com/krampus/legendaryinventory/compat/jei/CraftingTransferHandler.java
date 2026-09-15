@@ -23,11 +23,17 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class CraftingTransferHandler<C extends RecipeBookMenu<?, ?>> implements IRecipeTransferHandler<C, RecipeHolder<CraftingRecipe>> {
+
+    private static WeakReference<Player> cacheOwner = new WeakReference<>(null);
+    private static int cacheTick = -1;
+    private static ItemStack[] cacheStacks = new ItemStack[0];
+    private static int[] cacheCounts = new int[0];
 
     private final IRecipeTransferHandlerHelper helper;
     private final IRecipeTransferHandler<C, RecipeHolder<CraftingRecipe>> fallback;
@@ -78,13 +84,14 @@ public class CraftingTransferHandler<C extends RecipeBookMenu<?, ?>> implements 
                 Component.translatable("jei.tooltip.error.recipe.transfer.too.large.player.inventory"));
         }
 
-        List<ItemStack> available = collectAvailable(player.getInventory(), context.getBacking());
+        int[] counts = availableCounts(player, context.getBacking());
+        ItemStack[] stacks = cacheStacks;
         List<IRecipeSlotView> missing = new ArrayList<>();
         for (IRecipeSlotView view : slots.getSlotViews(RecipeIngredientRole.INPUT)) {
             if (view.isEmpty()) {
                 continue;
             }
-            if (!claim(view, available)) {
+            if (!claim(view, stacks, counts)) {
                 missing.add(view);
             }
         }
@@ -98,37 +105,52 @@ public class CraftingTransferHandler<C extends RecipeBookMenu<?, ?>> implements 
         return null;
     }
 
-    private static List<ItemStack> collectAvailable(Inventory inventory, CombinedInventoryHandler backing) {
-        List<ItemStack> available = new ArrayList<>();
+    private static int[] availableCounts(Player player, CombinedInventoryHandler backing) {
+        if (cacheOwner.get() != player || cacheTick != player.tickCount) {
+            rebuildCache(player, backing);
+        }
+        return cacheCounts.clone();
+    }
+
+    private static void rebuildCache(Player player, CombinedInventoryHandler backing) {
+        Inventory inventory = player.getInventory();
+        List<ItemStack> stacks = new ArrayList<>();
         for (int i = 0; i < Inventory.getSelectionSize(); i++) {
             ItemStack stack = inventory.getItem(i);
             if (!stack.isEmpty()) {
-                available.add(stack.copy());
+                stacks.add(stack);
             }
         }
         for (int i = 0; i < backing.getSlots(); i++) {
             ItemStack stack = backing.getStackInSlot(i);
             if (!stack.isEmpty()) {
-                available.add(stack.copy());
+                stacks.add(stack);
             }
         }
-        return available;
+
+        cacheStacks = stacks.toArray(new ItemStack[0]);
+        cacheCounts = new int[cacheStacks.length];
+        for (int i = 0; i < cacheStacks.length; i++) {
+            cacheCounts[i] = cacheStacks[i].getCount();
+        }
+        cacheOwner = new WeakReference<>(player);
+        cacheTick = player.tickCount;
     }
 
-    private static boolean claim(IRecipeSlotView view, List<ItemStack> available) {
+    private static boolean claim(IRecipeSlotView view, ItemStack[] stacks, int[] counts) {
         List<ItemStack> options = view.getItemStacks().toList();
         for (ItemStack option : options) {
-            for (ItemStack stack : available) {
-                if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(stack, option)) {
-                    stack.shrink(1);
+            for (int i = 0; i < stacks.length; i++) {
+                if (counts[i] > 0 && ItemStack.isSameItemSameComponents(stacks[i], option)) {
+                    counts[i]--;
                     return true;
                 }
             }
         }
         for (ItemStack option : options) {
-            for (ItemStack stack : available) {
-                if (!stack.isEmpty() && stack.is(option.getItem())) {
-                    stack.shrink(1);
+            for (int i = 0; i < stacks.length; i++) {
+                if (counts[i] > 0 && stacks[i].is(option.getItem())) {
+                    counts[i]--;
                     return true;
                 }
             }

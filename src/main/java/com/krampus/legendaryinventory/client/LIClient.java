@@ -2,10 +2,12 @@ package com.krampus.legendaryinventory.client;
 
 import com.krampus.legendaryinventory.LegendaryInventory;
 import com.krampus.legendaryinventory.client.gui.LIScreen;
+import com.krampus.legendaryinventory.compat.TrashSlotCompat;
 import com.krampus.legendaryinventory.menu.LIMenus;
 import com.krampus.legendaryinventory.weight.CarryLoad;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
@@ -17,7 +19,12 @@ public final class LIClient {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> CarryLoad.setClientCapacitySource(ClientWeightState::capacity));
+        event.enqueueWork(() -> {
+            CarryLoad.setClientCapacitySource(ClientWeightState::capacity);
+            if (ModList.get().isLoaded(TrashSlotCompat.MOD_ID)) {
+                TrashSlotCompat.init();
+            }
+        });
     }
 
     @SubscribeEvent

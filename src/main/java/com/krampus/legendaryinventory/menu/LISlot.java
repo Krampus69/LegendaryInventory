@@ -109,6 +109,10 @@ public class LISlot extends Slot {
 
     @Override
     public void setChanged() {
+        int i = context.writeIndexFor(window);
+        if (i >= 0) {
+            context.getBacking().markChanged(i);
+        }
         context.onSlotContentsChanged();
     }
 }
