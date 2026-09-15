@@ -1,5 +1,6 @@
 package com.krampus.legendaryinventory.weight;
 
+import com.krampus.legendaryinventory.compat.BackpackedCompat;
 import com.krampus.legendaryinventory.config.LIConfig;
 import com.krampus.legendaryinventory.inventory.ExtendedInventory;
 import com.krampus.legendaryinventory.inventory.LICaps;
@@ -22,6 +23,7 @@ public final class CarryLoad {
         int total = sum(inv.items) + sum(inv.armor) + sum(inv.offhand);
         total += extendedWeight(player);
         total += cursorWeight(player);
+        total += BackpackedCompat.weight(player);
         return total;
     }
 

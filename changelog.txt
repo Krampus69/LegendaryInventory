@@ -1,4 +1,6 @@
 legendaryinventory-1.20.1 Changelog
-1.0.0
+1.1.0
 ====
-initial release.
+Fixed weight tablets not applying after death
+Fixed blue skies compat
+Fixed backpacks from backpacked not applying weight on the backpack inventory
