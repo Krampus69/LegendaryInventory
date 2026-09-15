@@ -86,8 +86,18 @@ public final class WeightEvents {
         @SubscribeEvent
         public static void onRespawn(PlayerEvent.PlayerRespawnEvent event) {
             if (event.getEntity() instanceof ServerPlayer sp) {
+                forget(sp);
+                CapacityBonus.apply(sp);
                 watchInventory(sp);
             }
+        }
+
+        private static void forget(Player player) {
+            LAST_SENT.remove(player);
+            LAST_TIER.remove(player);
+            LAST_CAPACITY.remove(player);
+            LAST_GENERATION.remove(player);
+            LAST_MAIN.remove(player);
         }
 
         @SubscribeEvent

@@ -1,4 +1,4 @@
 legendaryinventory-1.21.1 Changelog
-1.0.0
+1.1.0
 ====
-initial release.
+Fixed weight tablets not applying after death
