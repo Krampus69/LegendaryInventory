@@ -50,6 +50,11 @@ public final class SearchInputEvents {
         if (event.getButton() == 0 && InventoryWeightBar.searchHovered(screen, event.getMouseX(), event.getMouseY())) {
             event.setCanceled(true);
             InventorySearchBar.toggle();
+            return;
+        }
+        if (event.getButton() == 0 && InventoryWeightBar.scrollToggleHovered(screen, event.getMouseX(), event.getMouseY())) {
+            event.setCanceled(true);
+            InventoryScrollBar.toggle();
         }
     }
 }

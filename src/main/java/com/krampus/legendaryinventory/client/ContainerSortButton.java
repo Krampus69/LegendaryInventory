@@ -21,14 +21,20 @@ public final class ContainerSortButton {
     private static final ResourceLocation TEXTURE =
         new ResourceLocation(LegendaryInventory.MODID, "textures/gui/sort_button.png");
 
-    private static final int SIZE = 12;
-    private static final int TEX_W = 12;
-    private static final int TEX_H = 24;
+    private static final int SIZE = 10;
+    private static final int TEX_W = 10;
+    private static final int TEX_H = 20;
     private static final int HINT_COLOR = 0x9365A2;
-    private static final int RIGHT_MARGIN = 20;
-    private static final int TOP_MARGIN = 6;
+    private static final int RIGHT_MARGIN = 17;
+    private static final int TOP_MARGIN = 5;
+
+    private static boolean keyHeld;
 
     private ContainerSortButton() {}
+
+    public static void setKeyHeld(boolean held) {
+        keyHeld = held;
+    }
 
     private static int[] anchor(AbstractContainerScreen<?> screen) {
         boolean augmented = false;
@@ -69,7 +75,7 @@ public final class ContainerSortButton {
         if (at == null) {
             return;
         }
-        boolean hover = hovered(screen, mouseX, mouseY);
+        boolean hover = keyHeld || hovered(screen, mouseX, mouseY);
         g.blit(TEXTURE, at[0], at[1], 0, hover ? SIZE : 0, SIZE, SIZE, TEX_W, TEX_H);
     }
 

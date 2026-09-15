@@ -1,8 +1,10 @@
 package com.krampus.legendaryinventory.net;
 
 import com.krampus.legendaryinventory.client.ClientMirror;
+import com.krampus.legendaryinventory.inventory.CombinedInventoryHandler;
 import com.krampus.legendaryinventory.inventory.ExtendedInventory;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -32,6 +34,19 @@ public class MirrorPacket {
         return new MirrorPacket(true, null, stacks);
     }
 
+    public static MirrorPacket mainDelta(Inventory inventory, BitSet changed) {
+        int count = changed.cardinality();
+        int[] indices = new int[count];
+        ItemStack[] stacks = new ItemStack[count];
+        int at = 0;
+        for (int i = changed.nextSetBit(0); i >= 0; i = changed.nextSetBit(i + 1)) {
+            indices[at] = ExtendedInventory.SIZE + i;
+            stacks[at] = inventory.getItem(CombinedInventoryHandler.MAIN_OFFSET + i);
+            at++;
+        }
+        return new MirrorPacket(false, indices, stacks);
+    }
+
     public static MirrorPacket delta(ExtendedInventory handler, BitSet changed) {
         int count = changed.cardinality();
         int[] indices = new int[count];
@@ -48,7 +63,7 @@ public class MirrorPacket {
 
     public MirrorPacket(FriendlyByteBuf buf) {
         this.full = buf.readBoolean();
-        int count = Math.min(buf.readVarInt(), ExtendedInventory.SIZE);
+        int count = Math.min(buf.readVarInt(), ExtendedInventory.SIZE + CombinedInventoryHandler.MAIN_COUNT);
         this.indices = full ? null : new int[count];
         this.stacks = new ItemStack[count];
 

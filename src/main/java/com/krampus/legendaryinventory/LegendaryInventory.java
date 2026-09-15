@@ -2,6 +2,7 @@ package com.krampus.legendaryinventory;
 
 import com.krampus.legendaryinventory.client.ClientWeightState;
 import com.krampus.legendaryinventory.client.gui.LIScreen;
+import com.krampus.legendaryinventory.compat.TrashSlotCompat;
 import com.krampus.legendaryinventory.compat.WaystonesCompat;
 import com.krampus.legendaryinventory.config.LIConfig;
 import com.krampus.legendaryinventory.item.LIItems;
@@ -59,6 +60,9 @@ public class LegendaryInventory {
         event.enqueueWork(() -> {
             MenuScreens.register(LIMenus.EXTENDED.get(), LIScreen::new);
             CarryLoad.setClientCapacitySource(ClientWeightState::capacity);
+            if (ModList.get().isLoaded(TrashSlotCompat.MOD_ID)) {
+                TrashSlotCompat.init();
+            }
         });
     }
 }

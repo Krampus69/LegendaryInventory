@@ -2,8 +2,10 @@ package com.krampus.legendaryinventory.event;
 
 import com.krampus.legendaryinventory.LegendaryInventory;
 import com.krampus.legendaryinventory.config.LIConfig;
+import com.krampus.legendaryinventory.inventory.CombinedInventoryHandler;
 import com.krampus.legendaryinventory.inventory.ExtendedInventory;
 import com.krampus.legendaryinventory.inventory.LICaps;
+import com.krampus.legendaryinventory.menu.ScrollContext;
 import com.krampus.legendaryinventory.menu.ScrollRegistry;
 import com.krampus.legendaryinventory.net.LINet;
 import com.krampus.legendaryinventory.net.MirrorPacket;
@@ -19,7 +21,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.TickEvent;
@@ -47,6 +51,7 @@ public final class WeightEvents {
 
     private static final Map<Player, Integer> LAST_SENT = new WeakHashMap<>();
     private static final Map<Player, Integer> LAST_TIER = new WeakHashMap<>();
+    private static final Map<Player, ItemStack[]> LAST_MAIN = new WeakHashMap<>();
     private static final Map<Player, Integer> LAST_CAPACITY = new WeakHashMap<>();
     private static final Map<Player, Integer> LAST_GENERATION = new WeakHashMap<>();
 
@@ -141,6 +146,7 @@ public final class WeightEvents {
                         : MirrorPacket.delta(ext, changes));
                 }
             }
+            syncHiddenMain(player);
 
             int generation = WeightTable.generation();
             Integer lastGeneration = LAST_GENERATION.get(player);
@@ -209,6 +215,29 @@ public final class WeightEvents {
             if (blocked) {
                 event.setCanceled(true);
             }
+        }
+    }
+
+    private static void syncHiddenMain(ServerPlayer player) {
+        ScrollContext context = ScrollRegistry.get(player.containerMenu);
+        if (context == null) {
+            return;
+        }
+        Inventory inventory = player.getInventory();
+        ItemStack[] last = LAST_MAIN.computeIfAbsent(player, p -> new ItemStack[CombinedInventoryHandler.MAIN_COUNT]);
+        BitSet changed = new BitSet(CombinedInventoryHandler.MAIN_COUNT);
+        for (int i = 0; i < CombinedInventoryHandler.MAIN_COUNT; i++) {
+            ItemStack current = inventory.getItem(CombinedInventoryHandler.MAIN_OFFSET + i);
+            if (last[i] != null && ItemStack.matches(last[i], current)) {
+                continue;
+            }
+            last[i] = current.copy();
+            if (!context.isBackingVisible(i)) {
+                changed.set(i);
+            }
+        }
+        if (!changed.isEmpty()) {
+            LINet.toPlayer(player, MirrorPacket.mainDelta(inventory, changed));
         }
     }
 

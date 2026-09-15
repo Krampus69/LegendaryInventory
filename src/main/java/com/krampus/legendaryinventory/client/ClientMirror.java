@@ -1,8 +1,10 @@
 package com.krampus.legendaryinventory.client;
 
+import com.krampus.legendaryinventory.inventory.CombinedInventoryHandler;
 import com.krampus.legendaryinventory.inventory.ExtendedInventory;
 import com.krampus.legendaryinventory.inventory.LICaps;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
 public final class ClientMirror {
@@ -14,10 +16,10 @@ public final class ClientMirror {
         if (mc.player == null) {
             return;
         }
-        mc.player.getCapability(LICaps.EXTENDED).ifPresent(ext -> apply(ext, full, indices, stacks));
+        mc.player.getCapability(LICaps.EXTENDED).ifPresent(ext -> apply(mc.player.getInventory(), ext, full, indices, stacks));
     }
 
-    private static void apply(ExtendedInventory ext, boolean full, int[] indices, ItemStack[] stacks) {
+    private static void apply(Inventory inventory, ExtendedInventory ext, boolean full, int[] indices, ItemStack[] stacks) {
         if (full) {
             int n = Math.min(stacks.length, ext.getSlots());
             for (int i = 0; i < n; i++) {
@@ -28,6 +30,9 @@ public final class ClientMirror {
                 int slot = indices[i];
                 if (slot >= 0 && slot < ext.getSlots()) {
                     ext.setStackInSlot(slot, stacks[i]);
+                } else if (slot >= ExtendedInventory.SIZE
+                    && slot < ExtendedInventory.SIZE + CombinedInventoryHandler.MAIN_COUNT) {
+                    inventory.setItem(CombinedInventoryHandler.MAIN_OFFSET + slot - ExtendedInventory.SIZE, stacks[i]);
                 }
             }
         }
