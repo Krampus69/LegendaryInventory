@@ -61,6 +61,10 @@ public final class InventorySearchBar {
         return open && screen == target;
     }
 
+    public static int frameBottomBelowPanel() {
+        return FRAME_BELOW_PANEL + FRAME_H;
+    }
+
     public static void attach(AbstractContainerScreen<?> target) {
         screen = target;
         box = new EditBox(Minecraft.getInstance().font, 0, 0, TEXT_W, TEXT_H, Component.empty());

@@ -20,7 +20,7 @@ import java.util.List;
 public final class InventoryWeightBar {
 
     private static final ResourceLocation TEXTURE =
-        new ResourceLocation(LegendaryInventory.MODID, "textures/gui/weight_bar.png");
+            new ResourceLocation(LegendaryInventory.MODID, "textures/gui/weight_bar.png");
 
     private static final int TEX_W = 256;
     private static final int TEX_H = 64;
@@ -91,6 +91,10 @@ public final class InventoryWeightBar {
         return mx >= x && mx < x + SCROLL_TOGGLE_SIZE && my >= y && my < y + SCROLL_TOGGLE_SIZE;
     }
 
+    public static int extensionBelow() {
+        return BG_H - BG_BOTTOM_OFFSET;
+    }
+
     public static boolean available(AbstractContainerScreen<?> screen) {
         return visibleFor(screen) != null;
     }
@@ -126,18 +130,18 @@ public final class InventoryWeightBar {
             return;
         }
         if (screen instanceof RecipeUpdateListener listener
-            && listener.getRecipeBookComponent().isVisible() && screen.width < NARROW_WIDTH) {
+                && listener.getRecipeBookComponent().isVisible() && screen.width < NARROW_WIDTH) {
             return;
         }
 
         if (searchHovered(screen, mx, my)) {
             g.renderTooltip(Minecraft.getInstance().font,
-                Component.translatable("gui.legendaryinventory.weight.search"), mx, my);
+                    Component.translatable("gui.legendaryinventory.weight.search"), mx, my);
             return;
         }
         if (scrollToggleHovered(screen, mx, my)) {
             g.renderTooltip(Minecraft.getInstance().font,
-                Component.translatable("gui.legendaryinventory.weight.scrollbar"), mx, my);
+                    Component.translatable("gui.legendaryinventory.weight.scrollbar"), mx, my);
             return;
         }
 
@@ -154,19 +158,19 @@ public final class InventoryWeightBar {
 
         List<Component> lines = new ArrayList<>();
         lines.add(Component.translatable("gui.legendaryinventory.weight", carried, capacity)
-            .withStyle(ChatFormatting.WHITE));
+                .withStyle(ChatFormatting.WHITE));
         lines.add(Component.translatable("gui.legendaryinventory.weight.percent", percent)
-            .withStyle(tier == 0 ? ChatFormatting.GRAY : ChatFormatting.RED));
+                .withStyle(tier == 0 ? ChatFormatting.GRAY : ChatFormatting.RED));
 
         if (tier > 0) {
             double penalty = CarryLoad.penaltyFor(carried, capacity);
             if (penalty <= -1.0D) {
                 lines.add(Component.translatable("gui.legendaryinventory.weight.immobile")
-                    .withStyle(ChatFormatting.DARK_RED));
+                        .withStyle(ChatFormatting.DARK_RED));
             } else {
                 int slow = (int) Math.round(-penalty * 100.0D);
                 lines.add(Component.translatable("gui.legendaryinventory.weight.overloaded", slow)
-                    .withStyle(ChatFormatting.RED));
+                        .withStyle(ChatFormatting.RED));
             }
         }
 
