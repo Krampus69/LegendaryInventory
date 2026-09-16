@@ -2,3 +2,4 @@ legendaryinventory-1.21.1 Changelog
 1.1.0
 ====
 Fixed weight tablets not applying after death
+Delete useless tabs compat
