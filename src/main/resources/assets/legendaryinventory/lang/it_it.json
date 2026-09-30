@@ -14,6 +14,7 @@
   "key.legendaryinventory.show_weight": "Mostra barra del peso",
   "key.legendaryinventory.expand": "Espandi inventario",
   "gui.legendaryinventory.sort.weight": "Ctrl: ordina per PESO",
+  "gui.legendaryinventory.sort.menu.title": "Pulsante di ordinamento",
   "gui.legendaryinventory.sort.menu.move": "Sposta",
   "gui.legendaryinventory.sort.menu.hide": "Nascondi",
   "gui.legendaryinventory.sort.menu.show": "Mostra pulsante di ordinamento",

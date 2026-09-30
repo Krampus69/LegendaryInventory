@@ -1,21 +1,9 @@
 legendaryinventory-1.20.1 Changelog
-1.2.0
+1.2.1
 ====
-Added the expanded inventory (press tab for the big inventory version)
-Added a way to move the sort button by right-clicking it (per menu)
-Containers (shulkers, backpacks) can now count item weight in it
-Fixed pick block from extended rows
-Added alwaysScrollable option in config (scroll is never blocked)
-Backpacked compat
-TrashSlot compat
-ClientSort compat
-EMI compat
-Blue Skies compat (1.20.1)
-French, Italian, German, Chinese translations
-Changed efault capacity 1000 to 2000
-Fixed pickups (they merge into existing extended stacks now)
-Crafting recipes see extended rows
-Overlapping mod buttons hidden while expanded (if you find more please report it)
-Fixed tablet bonus lost on respawn
-Fixed ort button texture and pressed state
-Fixed duplicate LegendaryTabs tab
+Resource packs can now override the expanded inventory texture with textures/gui/expanded_inventory.png
+Expanded inv gap and sides cut differently
+Fixed player model showing up with expanded inv
+Fixed FastWorkbench crash
+Fixed Iceberg crash
+Fixed diet/legendary tabs buttons overlapping

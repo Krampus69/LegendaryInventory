@@ -49,14 +49,8 @@ public final class MenuAugment {
             return false;
         }
         for (int i = 0; i < menu.slots.size(); i++) {
-            Slot slot = menu.slots.get(i);
-            if (slot instanceof LISlot || slot instanceof CoveredSlot) {
-                continue;
-            }
             if ((i >= COVERED_FIRST && i <= COVERED_LAST) || i == OFFHAND_INDEX) {
-                CoveredSlot covered = new CoveredSlot(slot, context);
-                covered.index = i;
-                menu.slots.set(i, covered);
+                CoveredSlots.cover(menu.slots.get(i), context);
             }
         }
         try {

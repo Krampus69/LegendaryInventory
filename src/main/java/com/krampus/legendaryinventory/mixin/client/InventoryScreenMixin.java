@@ -21,4 +21,18 @@ public abstract class InventoryScreenMixin {
             ci.cancel();
         }
     }
+
+    @Inject(
+        method = "renderBg",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/gui/screens/inventory/InventoryScreen;renderEntityInInventoryFollowsMouse"
+        ),
+        cancellable = true
+    )
+    private void legendaryinventory$hideModel(GuiGraphics g, float partialTick, int mouseX, int mouseY, CallbackInfo ci) {
+        if (InventoryExpansion.isExpanded((InventoryScreen) (Object) this)) {
+            ci.cancel();
+        }
+    }
 }

@@ -11,9 +11,11 @@
     "HopperSackMixin",
     "InventoryMenuMixin",
     "InventoryMixin",
-    "MoveItemStackMixin"
+    "MoveItemStackMixin",
+    "SlotMixin"
   ],
   "client": [
+    "client.GuiGraphicsAccessor",
     "client.InventoryScreenMixin"
   ]
 }
