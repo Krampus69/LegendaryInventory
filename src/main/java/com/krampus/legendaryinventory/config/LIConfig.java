@@ -10,6 +10,8 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.List;
+
 @Mod.EventBusSubscriber(modid = LegendaryInventory.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class LIConfig {
 
@@ -48,6 +50,8 @@ public final class LIConfig {
         public final ForgeConfigSpec.IntValue fallbackStackable;
         public final ForgeConfigSpec.IntValue fallbackSemiStackable;
         public final ForgeConfigSpec.IntValue fallbackUnstackable;
+        public final ForgeConfigSpec.BooleanValue containerContentsCount;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> containerContentsPaths;
 
         public final ForgeConfigSpec.IntValue baseCapacity;
         public final ForgeConfigSpec.BooleanValue maxCapacityEnabled;
@@ -68,35 +72,44 @@ public final class LIConfig {
         public final ForgeConfigSpec.BooleanValue waystonesBlockWhenStalled;
         public final ForgeConfigSpec.BooleanValue firstRowCue;
         public final ForgeConfigSpec.BooleanValue sortEnabled;
+        public final ForgeConfigSpec.BooleanValue alwaysScrollable;
         public final ForgeConfigSpec.DoubleValue mountBlockRatio;
         public final ForgeConfigSpec.BooleanValue mountBlockVehicles;
         public final ForgeConfigSpec.BooleanValue mountAnimalPenalty;
 
         Common(ForgeConfigSpec.Builder b) {
             b.comment(
-                "Per item weights live in " + FOLDER + "/weights.json.",
-                "Items missing from that file use the fallback values below, based on max stack size.",
-                "Edit weights.json then run /inventory reload to apply without restarting."
+                    "Per item weights live in " + FOLDER + "/weights.json.",
+                    "Items missing from that file use the fallback values below, based on max stack size.",
+                    "Edit weights.json then run /inventory reload to apply without restarting."
             ).push("weight");
             fallbackStackable = b.comment("Items that stack to 64 or more").defineInRange("fallbackStackable", 1, 0, 100000);
             fallbackSemiStackable = b.comment("Items that stack to between 2 and 63").defineInRange("fallbackSemiStackable", 4, 0, 100000);
             fallbackUnstackable = b.comment("Items that do not stack").defineInRange("fallbackUnstackable", 24, 0, 100000);
+            containerContentsCount = b.comment(
+                    "Count the items stored inside backpacks, shulker boxes and other container items toward the carried weight.",
+                    "Contents are read from the item's item handler capability, or from the Items / BlockEntityTag.Items NBT lists."
+            ).define("containerContentsCount", false);
+            containerContentsPaths = b.comment(
+                    "Extra NBT paths to look for stored items in, dot separated, for container mods that use another layout.",
+                    "Example: inventory.Items"
+            ).defineListAllowEmpty("containerContentsPaths", List.of(), o -> o instanceof String);
             b.pop();
 
             b.push("capacity");
-            baseCapacity = b.comment("Carry capacity in pods before any penalty").defineInRange("base", 1000, 1, 1000000);
+            baseCapacity = b.comment("Carry capacity in pods before any penalty").defineInRange("base", 2000, 1, 1000000);
             maxCapacityEnabled = b.comment(
-                "true: capacity cannot be raised above the max value below.",
-                "false: no limit."
+                    "true: capacity cannot be raised above the max value below.",
+                    "false: no limit."
             ).define("maxEnabled", true);
             maxCapacity = b.comment("Maximum carry capacity in pods, including bonuses from tablets")
-                .defineInRange("max", 10000, 1, 1000000);
+                    .defineInRange("max", 10000, 1, 1000000);
             b.pop();
 
             b.push("tablets");
             tabletsEnabled = b.comment(
-                "Enable the weight tablets: dungeon loot that permanently raises carry capacity.",
-                "false: tablets do nothing when used, do not appear in loot or the creative tab."
+                    "Enable the weight tablets: dungeon loot that permanently raises carry capacity.",
+                    "false: tablets do nothing when used, do not appear in loot or the creative tab."
             ).define("enabled", true);
             tabletTier1 = b.comment("Pods granted by Weight Tablet I").defineInRange("tier1", 20, 1, 1000000);
             tabletTier2 = b.comment("Pods granted by Weight Tablet II").defineInRange("tier2", 50, 1, 1000000);
@@ -112,41 +125,48 @@ public final class LIConfig {
 
             b.push("pickup");
             blockPickupWhenFull = b.comment(
-                "true: stop picking up items once carried weight reaches 100% of capacity.",
-                "false: only stop once the stall ratio is reached."
+                    "true: stop picking up items once carried weight reaches 100% of capacity.",
+                    "false: only stop once the stall ratio is reached."
             ).define("blockWhenFull", false);
             b.pop();
 
             b.push("mounts");
             mountBlockRatio = b.comment(
-                "Load ratio (carried / capacity) from which the player can no longer mount.",
-                "1.5 means 150% of capacity."
+                    "Load ratio (carried / capacity) from which the player can no longer mount.",
+                    "1.5 means 150% of capacity."
             ).defineInRange("blockRatio", 1.5D, 0.01D, 100.0D);
             mountBlockVehicles = b.comment(
-                "true: the mount block also applies to vehicles such as boats and minecarts.",
-                "false: only living mounts are blocked, vehicles can always be entered."
+                    "true: the mount block also applies to vehicles such as boats and minecarts.",
+                    "false: only living mounts are blocked, vehicles can always be entered."
             ).define("blockVehicles", true);
             mountAnimalPenalty = b.comment(
-                "Living mounts carrying an overloaded player move with the same speed penalty the player would have on foot."
+                    "Living mounts carrying an overloaded player move with the same speed penalty the player would have on foot."
             ).define("animalPenalty", true);
             b.pop();
 
             b.push("sort");
             sortEnabled = b.comment(
-                "Enable the sort button and the sort keybind in inventories and containers."
+                    "Enable the sort button and the sort keybind in inventories and containers."
             ).define("enabled", true);
+            b.pop();
+
+            b.push("rows");
+            alwaysScrollable = b.comment(
+                    "Let players scroll through every extended row at any time, even while most of them are empty.",
+                    "When false, only the rows in use plus a few spare rows can be reached."
+            ).define("alwaysScrollable", false);
             b.pop();
 
             b.push("hints");
             firstRowCue = b.comment(
-                "The first time a player fills a 4th inventory row, show an action bar hint",
-                "and briefly scroll the inventory when it is next opened."
+                    "The first time a player fills a 4th inventory row, show an action bar hint",
+                    "and briefly scroll the inventory when it is next opened."
             ).define("firstRowCue", true);
             b.pop();
 
             b.push("compat");
             waystonesBlockWhenStalled = b.comment(
-                "Waystones: block teleporting through any waystone, warp stone or scroll while immobilised by weight."
+                    "Waystones: block teleporting through any waystone, warp stone or scroll while immobilised by weight."
             ).define("waystonesBlockWhenStalled", true);
             b.pop();
 
@@ -161,26 +181,30 @@ public final class LIConfig {
         public final ForgeConfigSpec.EnumValue<WeightBarMode> weightBar;
         public final ForgeConfigSpec.BooleanValue itemTooltipWeight;
         public final ForgeConfigSpec.BooleanValue scrollBarVisible;
+        public final ForgeConfigSpec.BooleanValue inventoryExpanded;
 
         Client(ForgeConfigSpec.Builder b) {
             b.push("hud");
             weightBar = b.comment(
-                "FLASH: the weight bar replaces the XP bar for a moment when the weight changes and while stalled.",
-                "ALWAYS: the weight bar permanently replaces the XP bar.",
-                "OFF: never show the weight bar."
+                    "FLASH: the weight bar replaces the XP bar for a moment when the weight changes and while stalled.",
+                    "ALWAYS: the weight bar permanently replaces the XP bar.",
+                    "OFF: never show the weight bar."
             ).defineEnum("weightBar", WeightBarMode.FLASH);
             b.pop();
 
             b.push("tooltip");
             itemTooltipWeight = b.comment(
-                "Show the weight number and icon next to the item name in item tooltips."
+                    "Show the weight number and icon next to the item name in item tooltips."
             ).define("itemWeight", true);
             b.pop();
 
             b.push("inventory");
             scrollBarVisible = b.comment(
-                "Show the scroll bar next to the extended inventory rows. Toggled in game with the button on the weight bar."
+                    "Show the scroll bar next to the extended inventory rows. Toggled in game with the button on the weight bar."
             ).define("scrollBarVisible", false);
+            inventoryExpanded = b.comment(
+                    "Show 7 inventory rows on the player inventory screen, covering the crafting and armor area. Toggled in game with the expand key."
+            ).define("inventoryExpanded", false);
             b.pop();
         }
     }

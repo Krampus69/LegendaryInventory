@@ -20,6 +20,7 @@ public class ExtendedInventory extends ItemStackHandler implements IExtendedInve
 
     private int cachedWeight = -1;
     private int cachedGeneration = -1;
+    private int lastInserted = 0;
 
     public ExtendedInventory() {
         super(SIZE);
@@ -61,6 +62,16 @@ public class ExtendedInventory extends ItemStackHandler implements IExtendedInve
 
     public void markChanged(int slot) {
         onContentsChanged(slot);
+    }
+
+    public void noteInserted(int count) {
+        lastInserted += count;
+    }
+
+    public int takeInserted() {
+        int value = lastInserted;
+        lastInserted = 0;
+        return value;
     }
 
     public void clearChanges() {

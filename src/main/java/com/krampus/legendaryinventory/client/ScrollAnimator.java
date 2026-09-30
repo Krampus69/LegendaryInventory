@@ -102,7 +102,7 @@ public final class ScrollAnimator {
         int originX = Integer.MAX_VALUE;
         int originY = Integer.MAX_VALUE;
         for (Slot slot : screen.getMenu().slots) {
-            if (slot instanceof LISlot) {
+            if (slot instanceof LISlot li && li.window() >= 0) {
                 originX = Math.min(originX, slot.x);
                 originY = Math.min(originY, slot.y);
             }
@@ -116,12 +116,12 @@ public final class ScrollAnimator {
         int gridLeft = gridX - 1;
         int gridTop = gridY - 1;
         int gridRight = gridLeft + ScrollContext.COLS * SLOT;
-        int gridBottom = gridTop + ScrollContext.VISIBLE_ROWS * SLOT;
+        int gridBottom = gridTop + context.visibleRows() * SLOT;
 
         g.enableScissor(gridLeft, gridTop, gridRight, gridBottom);
 
         int firstRow = (int) Math.floor(s.renderScroll);
-        for (int r = 0; r <= ScrollContext.VISIBLE_ROWS; r++) {
+        for (int r = 0; r <= context.visibleRows(); r++) {
             int row = firstRow + r;
             if (row < 0) {
                 continue;

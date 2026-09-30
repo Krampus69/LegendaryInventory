@@ -41,10 +41,19 @@ public final class ClientMenuAugmentEvents {
         }
         MenuAugment.augment(screen.getMenu(), mc.player);
         if (screen instanceof InventoryScreen && !(screen instanceof LIScreen)) {
+            InventoryExpansion.sync(screen);
             resetScroll(screen.getMenu());
         }
         if (InventoryWeightBar.available(screen)) {
             InventorySearchBar.attach(screen);
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onScreenInitPost(ScreenEvent.Init.Post event) {
+        AbstractContainerScreen<?> screen = AugmentedScreens.of(event.getScreen());
+        if (screen != null) {
+            InventoryExpansion.updateWidgets(screen);
         }
     }
 
@@ -54,7 +63,7 @@ public final class ClientMenuAugmentEvents {
             return;
         }
         InventorySearchBar.detach();
-        ContainerSortButton.setKeyHeld(false);
+        ContainerSortButton.reset();
         InventoryScrollBar.mouseReleased();
         if (screen instanceof InventoryScreen) {
             ScrollContext context = ScrollRegistry.get(screen.getMenu());
@@ -67,11 +76,13 @@ public final class ClientMenuAugmentEvents {
     @SubscribeEvent
     public static void onClientLogin(ClientPlayerNetworkEvent.LoggingIn event) {
         MenuAugment.augment(event.getPlayer().inventoryMenu, event.getPlayer());
+        InventoryExpansion.applyPreference(ScrollRegistry.get(event.getPlayer().inventoryMenu));
     }
 
     @SubscribeEvent
     public static void onClientClone(ClientPlayerNetworkEvent.Clone event) {
         MenuAugment.augment(event.getNewPlayer().inventoryMenu, event.getNewPlayer());
+        InventoryExpansion.applyPreference(ScrollRegistry.get(event.getNewPlayer().inventoryMenu));
     }
 
     private static void resetScroll(AbstractContainerMenu menu) {
@@ -108,6 +119,8 @@ public final class ClientMenuAugmentEvents {
         ScrollContext context = ScrollRegistry.get(screen.getMenu());
         ScrollAnimator.tick(context);
         ScrollAnimator.setWindowHidden(screen, ScrollAnimator.animating(context));
+        InventoryExpansion.updateWidgets(screen);
+        ContainerSortButton.mouseMoved(screen, event.getMouseX(), event.getMouseY());
     }
 
     @SubscribeEvent
@@ -116,6 +129,7 @@ public final class ClientMenuAugmentEvents {
         if (screen == null) {
             return;
         }
+        InventoryExpansion.renderCover(event.getGuiGraphics(), screen);
         InventoryWeightBar.render(event.getGuiGraphics(), screen);
         InventoryScrollBar.render(event.getGuiGraphics(), screen);
         clampScroll(screen.getMenu());
@@ -150,7 +164,14 @@ public final class ClientMenuAugmentEvents {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onSortClick(ScreenEvent.MouseButtonPressed.Pre event) {
         AbstractContainerScreen<?> screen = AugmentedScreens.of(event.getScreen());
-        if (screen == null || event.getButton() != 0) {
+        if (screen == null) {
+            return;
+        }
+        if (ContainerSortButton.mousePressed(screen, event.getMouseX(), event.getMouseY(), event.getButton())) {
+            event.setCanceled(true);
+            return;
+        }
+        if (event.getButton() != 0) {
             return;
         }
         if (InventoryScrollBar.mousePressed(screen, event.getMouseX(), event.getMouseY(), event.getButton())) {
@@ -180,6 +201,27 @@ public final class ClientMenuAugmentEvents {
     public static void onScrollBarRelease(ScreenEvent.MouseButtonReleased.Pre event) {
         if (event.getButton() == 0) {
             InventoryScrollBar.mouseReleased();
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onExpandKey(ScreenEvent.KeyPressed.Pre event) {
+        AbstractContainerScreen<?> screen = AugmentedScreens.of(event.getScreen());
+        if (screen == null) {
+            return;
+        }
+        if (ContainerSortButton.keyPressed(screen, event.getKeyCode())) {
+            event.setCanceled(true);
+            return;
+        }
+        if (InventorySearchBar.isFocused()) {
+            return;
+        }
+        if (!LIKeys.EXPAND.isActiveAndMatches(InputConstants.getKey(event.getKeyCode(), event.getScanCode()))) {
+            return;
+        }
+        if (InventoryExpansion.toggle(screen)) {
+            event.setCanceled(true);
         }
     }
 

@@ -29,6 +29,10 @@ public final class LINet {
 
         CHANNEL.messageBuilder(ScrollPacket.class, nextId++, NetworkDirection.PLAY_TO_SERVER)
             .encoder(ScrollPacket::encode).decoder(ScrollPacket::new).consumerMainThread(ScrollPacket::handle).add();
+        CHANNEL.messageBuilder(PickExtendedPacket.class, nextId++, NetworkDirection.PLAY_TO_SERVER)
+            .encoder(PickExtendedPacket::encode).decoder(PickExtendedPacket::new).consumerMainThread(PickExtendedPacket::handle).add();
+        CHANNEL.messageBuilder(ExpandPacket.class, nextId++, NetworkDirection.PLAY_TO_SERVER)
+            .encoder(ExpandPacket::encode).decoder(ExpandPacket::new).consumerMainThread(ExpandPacket::handle).add();
 
         CHANNEL.messageBuilder(FilterPacket.class, nextId++, NetworkDirection.PLAY_TO_SERVER)
             .encoder(FilterPacket::encode).decoder(FilterPacket::new).consumerMainThread(FilterPacket::handle).add();

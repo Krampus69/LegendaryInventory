@@ -71,6 +71,10 @@ repositories {
         name = 'Jared'
         url = 'https://maven.blamejared.com/'
     }
+    maven {
+        name = 'Twelve Iterations'
+        url = 'https://maven.twelveiterations.com/repository/maven-public/'
+    }
     flatDir {
         dirs 'libs'
     }
@@ -83,6 +87,9 @@ dependencies {
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:15.20.0.106")
     runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:15.20.0.106")
 
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+    compileOnly fg.deobf(files("libs/emi-1.1.24+1.20.1+forge.jar"))
 
     compileOnly fg.deobf("net.blay09.mods:balm-forge-1.20.1:7.3.42")
     compileOnly fg.deobf(files("libs/trashslot-forge-1.20.1-15.1.5.jar"))
