@@ -1,5 +1,6 @@
 package com.krampus.legendaryinventory.client;
 
+import com.krampus.legendaryinventory.LegendaryInventory;
 import com.krampus.legendaryinventory.client.gui.LIScreen;
 import com.krampus.legendaryinventory.config.LIConfig;
 import com.krampus.legendaryinventory.menu.ScrollContext;
@@ -15,7 +16,13 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.sounds.SoundEvents;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Collections;
@@ -27,6 +34,9 @@ public final class InventoryExpansion {
     private static final ResourceLocation INVENTORY =
             ResourceLocation.withDefaultNamespace("textures/gui/container/inventory.png");
 
+    private static final ResourceLocation OVERRIDE =
+            ResourceLocation.fromNamespaceAndPath(LegendaryInventory.MODID, "textures/gui/expanded_inventory.png");
+
     private static final int PANEL_X = 7;
     private static final int PANEL_W = 162;
     private static final int PANEL_FULL_W = 176;
@@ -36,19 +46,35 @@ public final class InventoryExpansion {
     private static final int ROW_U = 7;
     private static final int ROW_V = 83;
     private static final int ROW_H = 18;
-    private static final int FLAT_V = 138;
+    private static final int GAP_U = 77;
+    private static final int GAP_V = 7;
+    private static final int GAP_W = 92;
     private static final int LEFT_BORDER_U = 0;
     private static final int RIGHT_BORDER_U = 169;
     private static final int BORDER_W = 7;
     private static final int BORDER_H = 54;
     private static final int ROWS_TOP = MAIN_ROW_Y - ScrollContext.EXTRA_ROWS * ROW_H;
     private static final int COVER_TOP = ROWS_TOP - GAP_H - TOP_H;
+    private static final int COVER_H = MAIN_ROW_Y - COVER_TOP;
     private static final String[] COVERED_WIDGETS = {
         "top.theillusivec4.curios.client.gui.CuriosButton"
     };
     private static final Set<AbstractWidget> HIDDEN = Collections.newSetFromMap(new WeakHashMap<>());
+    private static boolean overridePresent;
 
     private InventoryExpansion() {}
+
+    @EventBusSubscriber(modid = LegendaryInventory.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+    public static final class ModBus {
+        @SubscribeEvent
+        public static void register(RegisterClientReloadListenersEvent event) {
+            event.registerReloadListener((ResourceManagerReloadListener) InventoryExpansion::reload);
+        }
+    }
+
+    private static void reload(ResourceManager manager) {
+        overridePresent = manager.getResource(OVERRIDE).isPresent();
+    }
 
     public static int marginAboveRows() {
         return TOP_H + GAP_H;
@@ -154,16 +180,26 @@ public final class InventoryExpansion {
         int guiTop = screen.getGuiTop();
         int left = guiLeft + PANEL_X;
         RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        if (overridePresent) {
+            g.blit(OVERRIDE, guiLeft, guiTop + COVER_TOP, 0, 0, PANEL_FULL_W, COVER_H);
+            RenderSystem.depthFunc(GL11.GL_LEQUAL);
+            return;
+        }
         g.blit(INVENTORY, guiLeft, guiTop + COVER_TOP, 0, 0, PANEL_FULL_W, TOP_H);
         int gapTop = guiTop + COVER_TOP + TOP_H;
-        for (int i = 0; i < GAP_H; i++) {
-            g.blit(INVENTORY, left, gapTop + i, ROW_U, FLAT_V, PANEL_W, 1);
+        g.blit(INVENTORY, guiLeft, gapTop, LEFT_BORDER_U, GAP_V, BORDER_W, GAP_H);
+        g.blit(INVENTORY, left + PANEL_W, gapTop, RIGHT_BORDER_U, GAP_V, BORDER_W, GAP_H);
+        int filled = 0;
+        while (filled < PANEL_W) {
+            int w = Math.min(GAP_W, PANEL_W - filled);
+            g.blit(INVENTORY, left + filled, gapTop, GAP_U, GAP_V, w, GAP_H);
+            filled += w;
         }
         for (int row = 0; row < ScrollContext.EXTRA_ROWS; row++) {
             g.blit(INVENTORY, left, guiTop + ROWS_TOP + row * ROW_H, ROW_U, ROW_V, PANEL_W, ROW_H);
         }
-        int sideTop = gapTop;
-        int sideHeight = MAIN_ROW_Y - COVER_TOP - TOP_H;
+        int sideTop = guiTop + ROWS_TOP;
+        int sideHeight = MAIN_ROW_Y - ROWS_TOP;
         int drawn = 0;
         while (drawn < sideHeight) {
             int h = Math.min(BORDER_H, sideHeight - drawn);

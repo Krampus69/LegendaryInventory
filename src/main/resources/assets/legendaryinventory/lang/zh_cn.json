@@ -14,6 +14,7 @@
   "key.legendaryinventory.show_weight": "显示负重条",
   "key.legendaryinventory.expand": "展开物品栏",
   "gui.legendaryinventory.sort.weight": "Ctrl：按重量排序",
+  "gui.legendaryinventory.sort.menu.title": "排序按钮",
   "gui.legendaryinventory.sort.menu.move": "移动",
   "gui.legendaryinventory.sort.menu.hide": "隐藏",
   "gui.legendaryinventory.sort.menu.show": "显示整理按钮",

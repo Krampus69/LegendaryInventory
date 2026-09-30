@@ -14,6 +14,7 @@
   "key.legendaryinventory.show_weight": "Show Weight Bar",
   "key.legendaryinventory.expand": "Expand inventory",
   "gui.legendaryinventory.sort.weight": "Ctrl: Sort by WEIGHT",
+  "gui.legendaryinventory.sort.menu.title": "Sort button",
   "gui.legendaryinventory.sort.menu.move": "Move",
   "gui.legendaryinventory.sort.menu.hide": "Hide",
   "gui.legendaryinventory.sort.menu.show": "Show sort button",

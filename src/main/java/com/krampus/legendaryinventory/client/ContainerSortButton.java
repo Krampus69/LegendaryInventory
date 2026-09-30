@@ -3,19 +3,27 @@ package com.krampus.legendaryinventory.client;
 import com.krampus.legendaryinventory.LegendaryInventory;
 import com.krampus.legendaryinventory.config.LIConfig;
 import com.krampus.legendaryinventory.menu.LISlot;
+import com.krampus.legendaryinventory.mixin.client.GuiGraphicsAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.inventory.Slot;
+import org.joml.Matrix4f;
+import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class ContainerSortButton {
@@ -31,12 +39,11 @@ public final class ContainerSortButton {
     private static final int TOP_MARGIN = 5;
     private static final int SNAP = 3;
 
-    private static final int MENU_PAD = 4;
+    private static final int MENU_PAD = 3;
     private static final int MENU_ROW = 12;
-    private static final int MENU_BG = 0xFF555555;
-    private static final int MENU_BORDER = 0xFF000000;
-    private static final int MENU_HOVER = 0xFF8C8C8C;
-    private static final int MENU_TEXT = 0xFFFFFF;
+    private static final int MENU_TEXT = 0xAAAAAA;
+    private static final int MENU_HOVER = 0xFFFFFF;
+    private static final Component MENU_TITLE = Component.translatable("gui.legendaryinventory.sort.menu.title");
 
     private enum Action { MOVE, HIDE, SHOW, RESET }
 
@@ -45,7 +52,7 @@ public final class ContainerSortButton {
     private static AbstractContainerScreen<?> menuScreen;
     private static int menuX;
     private static int menuY;
-    private static Action[] menuActions = new Action[0];
+    private static MenuEntry[] menuEntries = new MenuEntry[0];
 
     private static AbstractContainerScreen<?> moveScreen;
     private static int moveX;
@@ -247,51 +254,85 @@ public final class ContainerSortButton {
 
     private static void openMenu(AbstractContainerScreen<?> screen, double mouseX, double mouseY, Action... actions) {
         menuScreen = screen;
-        menuActions = actions;
-        int w = menuWidth();
-        int h = menuActions.length * MENU_ROW + MENU_PAD;
-        menuX = Math.max(0, Math.min(screen.width - w, (int) mouseX));
-        menuY = Math.max(0, Math.min(screen.height - h, (int) mouseY));
+        menuEntries = new MenuEntry[actions.length];
+        Font font = Minecraft.getInstance().font;
+        int w = 0;
+        for (int i = 0; i < actions.length; i++) {
+            menuEntries[i] = new MenuEntry(actions[i]);
+            w = Math.max(w, menuEntries[i].getWidth(font));
+        }
+        int h = (actions.length + 1) * MENU_ROW;
+        w = Math.max(w, font.width(MENU_TITLE));
+        menuX = Math.max(MENU_PAD, Math.min(screen.width - w - MENU_PAD, (int) mouseX));
+        menuY = Math.max(MENU_PAD, Math.min(screen.height - h - MENU_PAD, (int) mouseY));
     }
 
     private static Component label(Action action) {
         return Component.translatable("gui.legendaryinventory.sort.menu." + action.name().toLowerCase());
     }
 
-    private static int menuWidth() {
-        Font font = Minecraft.getInstance().font;
-        int w = 0;
-        for (Action action : menuActions) {
-            w = Math.max(w, font.width(label(action)));
-        }
-        return w + MENU_PAD * 2;
-    }
-
     private static Action menuEntryAt(double mouseX, double mouseY) {
-        int w = menuWidth();
-        if (mouseX < menuX || mouseX >= menuX + w) {
-            return null;
+        for (MenuEntry entry : menuEntries) {
+            if (entry.contains(mouseX, mouseY)) {
+                return entry.action;
+            }
         }
-        int row = (int) ((mouseY - menuY - MENU_PAD / 2) / MENU_ROW);
-        return row >= 0 && row < menuActions.length ? menuActions[row] : null;
+        return null;
     }
 
     private static void renderMenu(GuiGraphics g, int mouseX, int mouseY) {
-        Font font = Minecraft.getInstance().font;
-        int w = menuWidth();
-        int h = menuActions.length * MENU_ROW + MENU_PAD;
-        g.pose().pushPose();
-        g.pose().translate(0, 0, 400);
-        g.fill(menuX - 1, menuY - 1, menuX + w + 1, menuY + h + 1, MENU_BORDER);
-        g.fill(menuX, menuY, menuX + w, menuY + h, MENU_BG);
         Action hovered = menuEntryAt(mouseX, mouseY);
-        for (int i = 0; i < menuActions.length; i++) {
-            int rowY = menuY + MENU_PAD / 2 + i * MENU_ROW;
-            if (menuActions[i] == hovered) {
-                g.fill(menuX + 1, rowY, menuX + w - 1, rowY + MENU_ROW, MENU_HOVER);
-            }
-            g.drawString(font, label(menuActions[i]), menuX + MENU_PAD, rowY + 2, MENU_TEXT);
+        for (MenuEntry entry : menuEntries) {
+            entry.hovered = entry.action == hovered;
         }
-        g.pose().popPose();
+        List<ClientTooltipComponent> components = new ArrayList<>(menuEntries.length + 1);
+        components.add(ClientTooltipComponent.create(MENU_TITLE.getVisualOrderText()));
+        components.addAll(List.of(menuEntries));
+        ((GuiGraphicsAccessor) g).legendaryinventory$renderTooltipInternal(
+                Minecraft.getInstance().font, components, menuX, menuY, MENU_POSITIONER);
+    }
+
+    private static final ClientTooltipPositioner MENU_POSITIONER =
+            (screenWidth, screenHeight, mouseX, mouseY, width, height) -> new Vector2i(mouseX, mouseY);
+
+    private static final class MenuEntry implements ClientTooltipComponent {
+
+        private final Action action;
+        private final Component text;
+        private boolean hovered;
+        private int x = Integer.MIN_VALUE;
+        private int y;
+
+        private MenuEntry(Action action) {
+            this.action = action;
+            this.text = label(action);
+        }
+
+        private boolean contains(double mouseX, double mouseY) {
+            if (x == Integer.MIN_VALUE) {
+                return false;
+            }
+            int width = Minecraft.getInstance().font.width(text);
+            return mouseX >= x - MENU_PAD && mouseX < x + width + MENU_PAD
+                    && mouseY >= y && mouseY < y + MENU_ROW;
+        }
+
+        @Override
+        public int getHeight() {
+            return MENU_ROW;
+        }
+
+        @Override
+        public int getWidth(Font font) {
+            return font.width(text);
+        }
+
+        @Override
+        public void renderText(Font font, int x, int y, Matrix4f matrix, MultiBufferSource.BufferSource buffer) {
+            this.x = x;
+            this.y = y;
+            font.drawInBatch(text, x, y + 1, hovered ? MENU_HOVER : MENU_TEXT, true, matrix, buffer,
+                    Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
+        }
     }
 }
