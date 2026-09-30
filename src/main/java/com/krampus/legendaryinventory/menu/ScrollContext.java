@@ -1,5 +1,6 @@
 package com.krampus.legendaryinventory.menu;
 
+import com.krampus.legendaryinventory.config.LIConfig;
 import com.krampus.legendaryinventory.inventory.CombinedInventoryHandler;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -8,8 +9,10 @@ import org.jetbrains.annotations.Nullable;
 public class ScrollContext {
 
     public static final int COLS = 9;
-    public static final int VISIBLE_ROWS = 3;
-    public static final int WINDOW = COLS * VISIBLE_ROWS;
+    public static final int BASE_ROWS = 3;
+    public static final int EXTRA_ROWS = 6;
+    public static final int BASE_WINDOW = COLS * BASE_ROWS;
+    public static final int EXTRA_WINDOW = COLS * EXTRA_ROWS;
     public static final int HELD_ROWS = 3;
 
     private final AbstractContainerMenu menu;
@@ -18,6 +21,8 @@ public class ScrollContext {
 
     private int scrollRow = 0;
     private int[] filter = null;
+    private boolean expanded = false;
+    private boolean expandable = false;
 
     private int cachedVisible = -1;
     private long cachedTime = -1L;
@@ -42,6 +47,46 @@ public class ScrollContext {
 
     public int getScrollRow() {
         return scrollRow;
+    }
+
+    public boolean isExpandable() {
+        return expandable;
+    }
+
+    public void setExpandable(boolean expandable) {
+        this.expandable = expandable;
+        if (!expandable) {
+            this.expanded = false;
+        }
+    }
+
+    public boolean isExpanded() {
+        return expandable && expanded;
+    }
+
+    public void setExpanded(boolean expanded) {
+        boolean value = expandable && expanded;
+        if (this.expanded == value) {
+            return;
+        }
+        this.expanded = value;
+        setScrollRow(Math.min(scrollRow, maxScrollRow()));
+        trim();
+    }
+
+    public int visibleRows() {
+        return isExpanded() ? BASE_ROWS + EXTRA_ROWS : BASE_ROWS;
+    }
+
+    public int windowCount() {
+        return visibleRows() * COLS;
+    }
+
+    public int windowOf(int baseWindow, boolean extra) {
+        if (extra) {
+            return isExpanded() ? baseWindow : -1;
+        }
+        return isExpanded() ? baseWindow + EXTRA_WINDOW : baseWindow;
     }
 
     @Nullable
@@ -72,13 +117,17 @@ public class ScrollContext {
     }
 
     private int computeVisible() {
-        int needed = CombinedInventoryHandler.MAIN_COUNT + extraRows() * COLS;
         int limit = backing.getSlots();
+        if (LIConfig.COMMON.alwaysScrollable.get()) {
+            stickyVisible = limit;
+            return limit;
+        }
+        int needed = Math.max(windowCount(), CombinedInventoryHandler.MAIN_COUNT + extraRows() * COLS);
         int current;
         if (!menu.getCarried().isEmpty()) {
             current = Math.max(stickyVisible, needed + HELD_ROWS * COLS);
         } else {
-            int windowEnd = (scrollRow + VISIBLE_ROWS) * COLS;
+            int windowEnd = (scrollRow + visibleRows()) * COLS;
             current = Math.max(needed, Math.min(stickyVisible, windowEnd));
         }
         current = Math.min(current, limit);
@@ -115,12 +164,12 @@ public class ScrollContext {
     }
 
     public int maxScrollRow() {
-        return Math.max(0, totalRows() - VISIBLE_ROWS);
+        return Math.max(0, totalRows() - visibleRows());
     }
 
     public int physicalMaxScrollRow() {
         int rows = (backing.getSlots() + COLS - 1) / COLS;
-        return Math.max(0, rows - VISIBLE_ROWS);
+        return Math.max(0, rows - visibleRows());
     }
 
     public void setScrollRow(int row) {
@@ -128,7 +177,7 @@ public class ScrollContext {
     }
 
     public int applyWheel(double delta, boolean page) {
-        double rowsPerNotch = page ? VISIBLE_ROWS : 1.0D;
+        double rowsPerNotch = page ? visibleRows() : 1.0D;
         scrollAccum -= delta * rowsPerNotch;
         int step = (int) scrollAccum;
         if (step == 0) {
@@ -144,6 +193,9 @@ public class ScrollContext {
     }
 
     public int backingIndexFor(int window) {
+        if (window < 0) {
+            return -1;
+        }
         int pos = scrollRow * COLS + window;
         if (filter == null) {
             return pos < visibleCount() ? pos : -1;
@@ -152,7 +204,7 @@ public class ScrollContext {
     }
 
     public boolean isBackingVisible(int backingIndex) {
-        for (int window = 0; window < WINDOW; window++) {
+        for (int window = 0; window < windowCount(); window++) {
             if (backingIndexFor(window) == backingIndex) {
                 return true;
             }
@@ -161,6 +213,9 @@ public class ScrollContext {
     }
 
     public int writeIndexFor(int window) {
+        if (window < 0) {
+            return -1;
+        }
         int pos = scrollRow * COLS + window;
         if (filter == null) {
             return pos < backing.getSlots() ? pos : -1;

@@ -8,6 +8,11 @@
   },
   "mixins": [
     "HopperSackMixin",
+    "InventoryMenuMixin",
+    "InventoryMixin",
     "MoveItemStackMixin"
+  ],
+  "client": [
+    "client.InventoryScreenMixin"
   ]
 }

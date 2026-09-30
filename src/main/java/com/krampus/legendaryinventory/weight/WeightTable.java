@@ -56,7 +56,11 @@ public final class WeightTable {
     }
 
     public static int of(ItemStack stack) {
-        return perItem(stack) * stack.getCount();
+        int weight = perItem(stack) * stack.getCount();
+        if (ContainerContents.enabled()) {
+            weight += ContainerContents.weightOf(stack) * stack.getCount();
+        }
+        return weight;
     }
 
     public static int generation() {

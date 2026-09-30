@@ -28,6 +28,14 @@ public final class LIKeys {
         "key.categories.inventory"
     );
 
+    public static final KeyMapping EXPAND = new KeyMapping(
+        "key.legendaryinventory.expand",
+        KeyConflictContext.GUI,
+        InputConstants.Type.KEYSYM,
+        GLFW.GLFW_KEY_TAB,
+        "key.categories.inventory"
+    );
+
     private LIKeys() {}
 
     @EventBusSubscriber(modid = LegendaryInventory.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
@@ -36,6 +44,7 @@ public final class LIKeys {
         public static void register(RegisterKeyMappingsEvent event) {
             event.register(SORT);
             event.register(SHOW_WEIGHT);
+            event.register(EXPAND);
         }
     }
 }

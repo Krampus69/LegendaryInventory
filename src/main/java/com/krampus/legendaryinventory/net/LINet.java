@@ -33,6 +33,8 @@ public final class LINet {
         registrar.playToServer(ClearExtendedPacket.TYPE, ClearExtendedPacket.STREAM_CODEC, ClearExtendedPacket::handle);
         registrar.playToServer(CollectPacket.TYPE, CollectPacket.STREAM_CODEC, CollectPacket::handle);
         registrar.playToServer(RecipeTransferPacket.TYPE, RecipeTransferPacket.STREAM_CODEC, RecipeTransferPacket::handle);
+        registrar.playToServer(ExpandPacket.TYPE, ExpandPacket.STREAM_CODEC, ExpandPacket::handle);
+        registrar.playToServer(PickExtendedPacket.TYPE, PickExtendedPacket.STREAM_CODEC, PickExtendedPacket::handle);
 
         registrar.playToClient(WeightPacket.TYPE, WeightPacket.STREAM_CODEC, ClientPackets::handleWeight);
         registrar.playToClient(MirrorPacket.TYPE, MirrorPacket.STREAM_CODEC, ClientPackets::handleMirror);

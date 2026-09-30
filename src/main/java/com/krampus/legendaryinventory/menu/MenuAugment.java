@@ -8,8 +8,10 @@ import com.krampus.legendaryinventory.inventory.LIAttachments;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +21,57 @@ public final class MenuAugment {
     public static final int MAIN_LAST = 35;
     public static final int MAIN_COUNT = 27;
 
+    private static final int COVERED_FIRST = 0;
+    private static final int COVERED_LAST = 8;
+    private static final int OFFHAND_INDEX = 45;
+    private static final int EXTRA_X = 8;
+    private static final int MAIN_Y = 84;
+    private static final int SLOT = 18;
+    private static final int EXTRA_Y = MAIN_Y - ScrollContext.EXTRA_ROWS * SLOT;
+    private static final Method ADD_SLOT = resolveAddSlot();
+
     private MenuAugment() {}
+
+    private static Method resolveAddSlot() {
+        try {
+            Method method = AbstractContainerMenu.class.getDeclaredMethod("addSlot", Slot.class);
+            method.setAccessible(true);
+            return method;
+        } catch (Exception e) {
+            LegendaryInventory.LOGGER.warn("addSlot not reachable, the expanded inventory will stay disabled", e);
+            return null;
+        }
+    }
+
+    private static boolean addExpansion(InventoryMenu menu, Inventory inventory, ScrollContext context) {
+        if (ADD_SLOT == null) {
+            return false;
+        }
+        for (int i = 0; i < menu.slots.size(); i++) {
+            Slot slot = menu.slots.get(i);
+            if (slot instanceof LISlot || slot instanceof CoveredSlot) {
+                continue;
+            }
+            if ((i >= COVERED_FIRST && i <= COVERED_LAST) || i == OFFHAND_INDEX) {
+                CoveredSlot covered = new CoveredSlot(slot, context);
+                covered.index = i;
+                menu.slots.set(i, covered);
+            }
+        }
+        try {
+            for (int window = 0; window < ScrollContext.EXTRA_WINDOW; window++) {
+                int col = window % ScrollContext.COLS;
+                int row = window / ScrollContext.COLS;
+                LISlot slot = new LISlot(inventory, LISlot.EXTRA_FIRST + window,
+                    context, window, true, EXTRA_X + col * SLOT, EXTRA_Y + row * SLOT);
+                ADD_SLOT.invoke(menu, slot);
+            }
+        } catch (Exception e) {
+            LegendaryInventory.LOGGER.warn("failed to add expanded inventory slots", e);
+            return false;
+        }
+        return true;
+    }
 
     public static boolean augment(AbstractContainerMenu menu, Player player) {
         if (menu == null || player == null) {
@@ -64,9 +116,13 @@ public final class MenuAugment {
         for (int menuIndex : targets) {
             Slot old = menu.slots.get(menuIndex);
             int window = old.getSlotIndex() - MAIN_FIRST;
-            LISlot replacement = new LISlot(context, window, old.x, old.y);
+            LISlot replacement = new LISlot(inventory, old.getSlotIndex(), context, window, false, old.x, old.y);
             replacement.index = menuIndex;
             menu.slots.set(menuIndex, replacement);
+        }
+
+        if (menu instanceof InventoryMenu inventoryMenu) {
+            context.setExpandable(addExpansion(inventoryMenu, inventory, context));
         }
 
         ScrollRegistry.attach(menu, context);
