@@ -30,6 +30,9 @@ public class ScrollPacket {
             ScrollContext context = ScrollRegistry.get(player.containerMenu);
             if (context != null) {
                 context.setScrollRow(row);
+            }
+            ScrollAckPacket.send(player, player.containerMenu);
+            if (context != null) {
                 player.containerMenu.broadcastChanges();
             }
         }

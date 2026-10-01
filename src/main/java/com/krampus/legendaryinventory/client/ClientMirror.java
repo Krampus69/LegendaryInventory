@@ -2,9 +2,12 @@ package com.krampus.legendaryinventory.client;
 
 import com.krampus.legendaryinventory.inventory.CombinedInventoryHandler;
 import com.krampus.legendaryinventory.inventory.ExtendedInventory;
+import com.krampus.legendaryinventory.menu.ScrollContext;
+import com.krampus.legendaryinventory.menu.ScrollRegistry;
 import com.krampus.legendaryinventory.inventory.LICaps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 
 public final class ClientMirror {
@@ -37,5 +40,23 @@ public final class ClientMirror {
             }
         }
         ext.clearChanges();
+    }
+
+    public static void acknowledgeScroll(int containerId, int row, boolean expanded) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) {
+            return;
+        }
+        AbstractContainerMenu menu = mc.player.containerMenu;
+        if (menu.containerId != containerId) {
+            menu = mc.player.inventoryMenu;
+            if (menu.containerId != containerId) {
+                return;
+            }
+        }
+        ScrollContext context = ScrollRegistry.get(menu);
+        if (context != null) {
+            context.acknowledge(row, expanded);
+        }
     }
 }

@@ -50,6 +50,9 @@ public class FilterPacket {
             ScrollContext context = ScrollRegistry.get(player.containerMenu);
             if (context != null) {
                 context.setFilter(indices);
+            }
+            ScrollAckPacket.send(player, player.containerMenu);
+            if (context != null) {
                 player.containerMenu.broadcastFullState();
             }
         }

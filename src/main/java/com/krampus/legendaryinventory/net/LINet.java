@@ -52,6 +52,9 @@ public final class LINet {
         CHANNEL.messageBuilder(IntroCuePacket.class, nextId++, NetworkDirection.PLAY_TO_CLIENT)
             .encoder(IntroCuePacket::encode).decoder(IntroCuePacket::new).consumerMainThread(IntroCuePacket::handle).add();
 
+        CHANNEL.messageBuilder(ScrollAckPacket.class, nextId++, NetworkDirection.PLAY_TO_CLIENT)
+            .encoder(ScrollAckPacket::encode).decoder(ScrollAckPacket::new).consumerMainThread(ScrollAckPacket::handle).add();
+
         CHANNEL.messageBuilder(PickupNotifyPacket.class, nextId++, NetworkDirection.PLAY_TO_CLIENT)
             .encoder(PickupNotifyPacket::encode).decoder(PickupNotifyPacket::new).consumerMainThread(PickupNotifyPacket::handle).add();
 

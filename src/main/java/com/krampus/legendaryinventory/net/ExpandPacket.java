@@ -30,6 +30,9 @@ public class ExpandPacket {
             ScrollContext context = ScrollRegistry.get(player.inventoryMenu);
             if (context != null) {
                 context.setExpanded(expanded);
+            }
+            ScrollAckPacket.send(player, player.inventoryMenu);
+            if (context != null) {
                 player.inventoryMenu.broadcastChanges();
             }
         }

@@ -83,6 +83,7 @@ public final class InventorySearchBar {
             ScrollContext context = ScrollRegistry.get(screen.getMenu());
             if (context != null && context.getFilter() != null) {
                 context.setFilter(null);
+                context.markSent();
                 LINet.toServer(new FilterPacket((int[]) null));
             }
         }
@@ -227,6 +228,7 @@ public final class InventorySearchBar {
         int[] filter = compute(context.getBacking(), query);
         context.setFilter(filter);
         ScrollAnimator.reset(context);
+        context.markSent();
         LINet.toServer(new FilterPacket(filter));
     }
 

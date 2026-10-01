@@ -113,6 +113,7 @@ public final class InventoryExpansion {
             return;
         }
         applyPreference(context);
+        context.markSent();
         LINet.toServer(new ExpandPacket(context.isExpanded()));
     }
 
@@ -126,6 +127,7 @@ public final class InventoryExpansion {
         LIConfig.CLIENT_SPEC.save();
         context.setExpanded(value);
         ScrollAnimator.reset(context);
+        context.markSent();
         LINet.toServer(new ExpandPacket(value));
         Minecraft.getInstance().getSoundManager().play(
                 SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));

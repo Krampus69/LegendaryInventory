@@ -12,6 +12,7 @@
     "InventoryMenuMixin",
     "InventoryMixin",
     "MoveItemStackMixin",
+    "RemoteSlotWriteMixin",
     "SlotMixin"
   ],
   "client": [
