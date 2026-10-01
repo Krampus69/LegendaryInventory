@@ -64,6 +64,9 @@ public record FilterPacket(@Nullable int[] indices) implements CustomPacketPaylo
         ScrollContext context = ScrollRegistry.get(player.containerMenu);
         if (context != null) {
             context.setFilter(packet.indices());
+        }
+        ScrollAckPacket.send(player, player.containerMenu);
+        if (context != null) {
             player.containerMenu.broadcastFullState();
         }
     }

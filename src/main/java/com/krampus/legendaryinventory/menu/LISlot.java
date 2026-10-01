@@ -62,10 +62,11 @@ public class LISlot extends Slot {
 
     @Override
     public void set(ItemStack stack) {
-        int i = context.writeIndexFor(window());
+        boolean remote = context.isRemoteWrite();
+        int i = remote ? context.remoteWriteIndexFor(baseWindow, extra) : context.writeIndexFor(window());
         if (i >= 0) {
             handler().setStackInSlot(i, stack);
-        } else if (!stack.isEmpty()) {
+        } else if (!stack.isEmpty() && !remote) {
             rescue(stack);
         }
         setChanged();

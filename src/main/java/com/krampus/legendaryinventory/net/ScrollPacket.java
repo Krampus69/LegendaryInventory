@@ -27,6 +27,9 @@ public record ScrollPacket(int row) implements CustomPacketPayload {
         ScrollContext context = ScrollRegistry.get(player.containerMenu);
         if (context != null) {
             context.setScrollRow(packet.row());
+        }
+        ScrollAckPacket.send(player, player.containerMenu);
+        if (context != null) {
             player.containerMenu.broadcastChanges();
         }
     }

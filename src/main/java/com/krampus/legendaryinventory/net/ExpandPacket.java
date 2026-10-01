@@ -27,6 +27,9 @@ public record ExpandPacket(boolean expanded) implements CustomPacketPayload {
         ScrollContext context = ScrollRegistry.get(player.inventoryMenu);
         if (context != null) {
             context.setExpanded(packet.expanded());
+        }
+        ScrollAckPacket.send(player, player.inventoryMenu);
+        if (context != null) {
             player.inventoryMenu.broadcastChanges();
         }
     }

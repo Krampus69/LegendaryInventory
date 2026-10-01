@@ -2,6 +2,7 @@ package com.krampus.legendaryinventory.client;
 
 import com.krampus.legendaryinventory.net.IntroCuePacket;
 import com.krampus.legendaryinventory.net.MirrorPacket;
+import com.krampus.legendaryinventory.net.ScrollAckPacket;
 import com.krampus.legendaryinventory.net.WeightPacket;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -19,5 +20,9 @@ public final class ClientPackets {
 
     public static void handleIntroCue(IntroCuePacket packet, IPayloadContext ctx) {
         ClientIntroCue.arm();
+    }
+
+    public static void handleScrollAck(ScrollAckPacket packet, IPayloadContext ctx) {
+        ClientMirror.acknowledgeScroll(packet.containerId(), packet.row(), packet.expanded());
     }
 }

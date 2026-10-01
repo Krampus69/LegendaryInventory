@@ -246,6 +246,7 @@ public class LIScreen extends EffectRenderingInventoryScreen<LIMenu> implements 
             return;
         }
         menu.setScrollRow(clamped);
+        menu.context().markSent();
         LINet.toServer(new ScrollPacket(clamped));
 
     }

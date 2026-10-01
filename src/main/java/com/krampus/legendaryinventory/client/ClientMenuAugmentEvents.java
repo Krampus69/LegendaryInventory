@@ -271,6 +271,7 @@ public final class ClientMenuAugmentEvents {
         int target = context.applyWheel(event.getScrollDeltaY(), Screen.hasShiftDown());
         if (target != context.getScrollRow()) {
             context.setScrollRow(target);
+            context.markSent();
             LINet.toServer(new ScrollPacket(target));
         }
     }
@@ -291,6 +292,7 @@ public final class ClientMenuAugmentEvents {
         int max = context.maxScrollRow();
         if (context.getScrollRow() > max) {
             context.setScrollRow(max);
+            context.markSent();
             LINet.toServer(new ScrollPacket(max));
         }
     }

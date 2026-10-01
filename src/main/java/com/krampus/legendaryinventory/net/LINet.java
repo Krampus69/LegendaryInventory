@@ -39,6 +39,7 @@ public final class LINet {
         registrar.playToClient(WeightPacket.TYPE, WeightPacket.STREAM_CODEC, ClientPackets::handleWeight);
         registrar.playToClient(MirrorPacket.TYPE, MirrorPacket.STREAM_CODEC, ClientPackets::handleMirror);
         registrar.playToClient(IntroCuePacket.TYPE, IntroCuePacket.STREAM_CODEC, ClientPackets::handleIntroCue);
+        registrar.playToClient(ScrollAckPacket.TYPE, ScrollAckPacket.STREAM_CODEC, ClientPackets::handleScrollAck);
         registrar.playToClient(RulesSyncPacket.TYPE, RulesSyncPacket.STREAM_CODEC, RulesSyncPacket::handle);
     }
 

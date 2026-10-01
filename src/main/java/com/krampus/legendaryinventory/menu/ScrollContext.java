@@ -6,6 +6,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ScrollContext {
 
     public static final int COLS = 9;
@@ -30,6 +33,12 @@ public class ScrollContext {
     private int stickyVisible = 0;
 
     private double scrollAccum = 0.0D;
+
+    private static boolean remoteWrite = false;
+    private int remoteRow = 0;
+    private boolean remoteExpanded = false;
+    private int[] remoteFilter = null;
+    private final List<int[]> pendingFilters = new ArrayList<>();
 
     public ScrollContext(AbstractContainerMenu menu, Player owner, CombinedInventoryHandler backing) {
         this.menu = menu;
@@ -225,6 +234,43 @@ public class ScrollContext {
 
     public Player getOwner() {
         return owner;
+    }
+
+    public static void setRemoteWrite(boolean active) {
+        remoteWrite = active;
+    }
+
+    public boolean isRemoteWrite() {
+        return remoteWrite && owner.level().isClientSide();
+    }
+
+    public void markSent() {
+        pendingFilters.add(filter);
+    }
+
+    public void acknowledge(int row, boolean expanded) {
+        remoteRow = row;
+        remoteExpanded = expandable && expanded;
+        if (!pendingFilters.isEmpty()) {
+            remoteFilter = pendingFilters.remove(0);
+        }
+    }
+
+    public int remoteWriteIndexFor(int baseWindow, boolean extra) {
+        int window;
+        if (extra) {
+            window = remoteExpanded ? baseWindow : -1;
+        } else {
+            window = remoteExpanded ? baseWindow + EXTRA_WINDOW : baseWindow;
+        }
+        if (window < 0) {
+            return -1;
+        }
+        int pos = remoteRow * COLS + window;
+        if (remoteFilter == null) {
+            return pos < backing.getSlots() ? pos : -1;
+        }
+        return pos < remoteFilter.length ? remoteFilter[pos] : -1;
     }
 
     public void onSlotContentsChanged() {

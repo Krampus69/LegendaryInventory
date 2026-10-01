@@ -199,6 +199,7 @@ public final class InventoryScrollBar {
         int target = Math.round(Math.min(Math.max(ratio, 0.0F), 1.0F) * max);
         if (target != context.getScrollRow()) {
             context.setScrollRow(target);
+            context.markSent();
             LINet.toServer(new ScrollPacket(target));
         }
     }
