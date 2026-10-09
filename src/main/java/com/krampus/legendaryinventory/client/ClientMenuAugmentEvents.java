@@ -107,7 +107,7 @@ public final class ClientMenuAugmentEvents {
         if (context.getScrollRow() != target) {
             context.setScrollRow(target);
         }
-        LINet.toServer(new ScrollPacket(target));
+        LINet.toServer(new ScrollPacket(menu, target));
     }
 
     @SubscribeEvent
@@ -272,7 +272,7 @@ public final class ClientMenuAugmentEvents {
         if (target != context.getScrollRow()) {
             context.setScrollRow(target);
             context.markSent();
-            LINet.toServer(new ScrollPacket(target));
+            LINet.toServer(new ScrollPacket(screen.getMenu(), target));
         }
     }
 
@@ -293,7 +293,7 @@ public final class ClientMenuAugmentEvents {
         if (context.getScrollRow() > max) {
             context.setScrollRow(max);
             context.markSent();
-            LINet.toServer(new ScrollPacket(max));
+            LINet.toServer(new ScrollPacket(menu, max));
         }
     }
 

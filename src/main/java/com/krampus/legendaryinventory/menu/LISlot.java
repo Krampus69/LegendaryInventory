@@ -3,6 +3,9 @@ package com.krampus.legendaryinventory.menu;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import com.krampus.legendaryinventory.LegendaryInventory;
+import com.krampus.legendaryinventory.config.LIConfig;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -64,6 +67,7 @@ public class LISlot extends Slot {
     public void set(ItemStack stack) {
         boolean remote = context.isRemoteWrite();
         int i = remote ? context.remoteWriteIndexFor(baseWindow, extra) : context.writeIndexFor(window());
+        trace("set", i, remote, stack);
         if (i >= 0) {
             handler().setStackInSlot(i, stack);
         } else if (!stack.isEmpty() && !remote) {
@@ -85,7 +89,26 @@ public class LISlot extends Slot {
     @Override
     public ItemStack remove(int amount) {
         int i = context.writeIndexFor(window());
-        return i < 0 ? ItemStack.EMPTY : handler().extractItem(i, amount, false);
+        ItemStack out = i < 0 ? ItemStack.EMPTY : handler().extractItem(i, amount, false);
+        trace("remove", i, false, out);
+        return out;
+    }
+
+    private void trace(String op, int backing, boolean remote, ItemStack stack) {
+        if (!LIConfig.COMMON.logMenuAugment.get() || stack.isEmpty()) {
+            return;
+        }
+        StackTraceElement[] frames = Thread.currentThread().getStackTrace();
+        StringBuilder origin = new StringBuilder();
+        for (int f = 3; f < Math.min(frames.length, 9); f++) {
+            String cls = frames[f].getClassName();
+            origin.append(cls.substring(cls.lastIndexOf('.') + 1)).append('.').append(frames[f].getMethodName()).append(" < ");
+        }
+        AbstractContainerMenu menu = context.getMenu();
+        LegendaryInventory.LOGGER.info("[{}] {} {} id={} slot={} window={} scroll={} remoteRow={} remote={} backing={} {} | {}",
+            context.getOwner().level().isClientSide() ? "client" : "server",
+            menu.getClass().getSimpleName(), op, menu.containerId, index, window(),
+            context.getScrollRow(), context.remoteRow(), remote, backing, stack, origin);
     }
 
     @Override

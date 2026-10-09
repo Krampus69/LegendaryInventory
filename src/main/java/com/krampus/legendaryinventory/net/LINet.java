@@ -64,6 +64,9 @@ public final class LINet {
         CHANNEL.messageBuilder(CollectPacket.class, nextId++, NetworkDirection.PLAY_TO_SERVER)
             .encoder(CollectPacket::encode).decoder(CollectPacket::new).consumerMainThread(CollectPacket::handle).add();
 
+        CHANNEL.messageBuilder(CreativeSetPacket.class, nextId++, NetworkDirection.PLAY_TO_SERVER)
+            .encoder(CreativeSetPacket::encode).decoder(CreativeSetPacket::new).consumerMainThread(CreativeSetPacket::handle).add();
+
         CHANNEL.messageBuilder(RecipeTransferPacket.class, nextId++, NetworkDirection.PLAY_TO_SERVER)
             .encoder(RecipeTransferPacket::encode).decoder(RecipeTransferPacket::new).consumerMainThread(RecipeTransferPacket::handle).add();
     }

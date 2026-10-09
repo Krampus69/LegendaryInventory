@@ -16,7 +16,9 @@
     "SlotMixin"
   ],
   "client": [
+    "client.CreativeScreenClickMixin",
     "client.GuiGraphicsAccessor",
+    "client.MultiPlayerGameModeMixin",
     "client.InventoryScreenMixin"
   ]
 }

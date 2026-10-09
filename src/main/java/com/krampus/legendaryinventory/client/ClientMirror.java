@@ -1,5 +1,7 @@
 package com.krampus.legendaryinventory.client;
 
+import com.krampus.legendaryinventory.LegendaryInventory;
+import com.krampus.legendaryinventory.config.LIConfig;
 import com.krampus.legendaryinventory.inventory.CombinedInventoryHandler;
 import com.krampus.legendaryinventory.inventory.ExtendedInventory;
 import com.krampus.legendaryinventory.menu.ScrollContext;
@@ -48,13 +50,17 @@ public final class ClientMirror {
             return;
         }
         AbstractContainerMenu menu = mc.player.containerMenu;
-        if (menu.containerId != containerId) {
+        if (menu.containerId != containerId || !ScrollRegistry.has(menu)) {
             menu = mc.player.inventoryMenu;
             if (menu.containerId != containerId) {
                 return;
             }
         }
         ScrollContext context = ScrollRegistry.get(menu);
+        if (LIConfig.COMMON.logMenuAugment.get()) {
+            LegendaryInventory.LOGGER.info("[client] ScrollAck id={} row={} applied to {} id={} hasContext={}",
+                containerId, row, menu.getClass().getSimpleName(), menu.containerId, context != null);
+        }
         if (context != null) {
             context.acknowledge(row, expanded);
         }

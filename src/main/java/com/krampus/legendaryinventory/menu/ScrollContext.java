@@ -256,6 +256,10 @@ public class ScrollContext {
         }
     }
 
+    public int remoteRow() {
+        return remoteRow;
+    }
+
     public int remoteWriteIndexFor(int baseWindow, boolean extra) {
         int window;
         if (extra) {
