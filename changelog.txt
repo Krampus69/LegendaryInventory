@@ -1,9 +1,5 @@
 legendaryinventory-1.21.1 Changelog
-1.2.1
+1.2.3
 ====
-Resource packs can now override the expanded inventory texture with textures/gui/expanded_inventory.png
-Expanded inv gap and sides cut differently
-Fixed player model showing up with expanded inv
-Fixed FastWorkbench crash
-Fixed Iceberg crash
-Fixed diet/legendary tabs buttons overlapping
+Fixed a potential duplicate
+Fixed Loot Journal compat

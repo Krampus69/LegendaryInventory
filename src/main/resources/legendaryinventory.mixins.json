@@ -2,6 +2,7 @@
   "required": true,
   "minVersion": "0.8.5",
   "package": "com.krampus.legendaryinventory.mixin",
+  "plugin": "com.krampus.legendaryinventory.mixin.LIMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "injectors": {
     "defaultRequire": 1
@@ -15,7 +16,10 @@
     "SlotMixin"
   ],
   "client": [
+    "client.CreativeScreenClickMixin",
     "client.GuiGraphicsAccessor",
-    "client.InventoryScreenMixin"
+    "client.MultiPlayerGameModeMixin",
+    "client.InventoryScreenMixin",
+    "client.compat.LootJournalTotalMixin"
   ]
 }

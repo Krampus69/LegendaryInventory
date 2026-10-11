@@ -200,7 +200,7 @@ public final class InventoryScrollBar {
         if (target != context.getScrollRow()) {
             context.setScrollRow(target);
             context.markSent();
-            LINet.toServer(new ScrollPacket(target));
+            LINet.toServer(new ScrollPacket(context.getMenu(), target));
         }
     }
 }

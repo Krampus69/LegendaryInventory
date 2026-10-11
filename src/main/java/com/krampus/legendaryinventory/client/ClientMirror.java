@@ -48,7 +48,7 @@ public final class ClientMirror {
             return;
         }
         AbstractContainerMenu menu = mc.player.containerMenu;
-        if (menu.containerId != containerId) {
+        if (menu.containerId != containerId || !ScrollRegistry.has(menu)) {
             menu = mc.player.inventoryMenu;
             if (menu.containerId != containerId) {
                 return;
