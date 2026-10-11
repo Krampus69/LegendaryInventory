@@ -3,13 +3,12 @@ package com.krampus.legendaryinventory.event;
 import com.krampus.legendaryinventory.LegendaryInventory;
 import com.krampus.legendaryinventory.inventory.ExtendedAccess;
 import com.krampus.legendaryinventory.inventory.ExtendedInventory;
-import com.krampus.legendaryinventory.net.LINet;
-import com.krampus.legendaryinventory.net.PickupNotifyPacket;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -21,10 +20,11 @@ public final class PickupEvents {
     @SubscribeEvent
     public static void onPickup(EntityItemPickupEvent event) {
         Player player = event.getEntity();
-        if (player.level().isClientSide() || event.getItem().hasPickUpDelay()) {
+        ItemEntity entity = event.getItem();
+        if (player.level().isClientSide() || entity.hasPickUpDelay() || entity.isRemoved()) {
             return;
         }
-        ItemStack stack = event.getItem().getItem();
+        ItemStack stack = entity.getItem();
         if (!ExtendedAccess.accepts(stack)) {
             return;
         }
@@ -34,17 +34,27 @@ public final class PickupEvents {
         }
 
         int before = stack.getCount();
-        ItemStack original = stack.copy();
+        ItemStack working = stack.copy();
         ext.takeInserted();
-        player.getInventory().add(stack);
-        int toExtended = ext.takeInserted();
-        int toVanilla = before - stack.getCount() - toExtended;
+        player.getInventory().add(working);
+        ext.takeInserted();
+        int moved = before - working.getCount();
+        if (moved <= 0) {
+            return;
+        }
 
-        if (toVanilla <= 0 && toExtended > 0 && player instanceof ServerPlayer sp) {
-            LINet.toPlayer(sp, new PickupNotifyPacket(original.copyWithCount(toExtended)));
+        event.setCanceled(true);
+
+        ForgeEventFactory.firePlayerItemPickupEvent(player, entity, stack.copyWithCount(moved));
+        player.take(entity, moved);
+        stack.shrink(moved);
+        if (stack.isEmpty()) {
+            entity.discard();
+            stack.setCount(before);
+        } else {
+            entity.setItem(stack.copy());
         }
-        if (stack.getCount() < before) {
-            event.setResult(Event.Result.ALLOW);
-        }
+        player.awardStat(Stats.ITEM_PICKED_UP.get(stack.getItem()), moved);
+        player.onItemPickup(entity);
     }
 }

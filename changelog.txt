@@ -1,4 +1,4 @@
 legendaryinventory-1.20.1 Changelog
-1.2.2
+1.2.3
 ====
-fixed expaneded inventory scroll desync
+Fixed a potential duplicate
