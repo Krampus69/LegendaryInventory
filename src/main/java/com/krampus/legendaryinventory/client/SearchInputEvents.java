@@ -15,16 +15,35 @@ public final class SearchInputEvents {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onCharTyped(ScreenEvent.CharacterTyped.Pre event) {
-        if (AugmentedScreens.of(event.getScreen()) != null
-            && InventorySearchBar.charTyped(event.getCodePoint(), event.getModifiers())) {
+        if (AugmentedScreens.of(event.getScreen()) == null) {
+            return;
+        }
+        if (HotbarSwapKeys.consumeSuppressedChar()) {
+            event.setCanceled(true);
+            return;
+        }
+        if (InventorySearchBar.charTyped(event.getCodePoint(), event.getModifiers())) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onKeyPressed(ScreenEvent.KeyPressed.Pre event) {
-        if (AugmentedScreens.of(event.getScreen()) != null
-            && InventorySearchBar.keyPressed(event.getKeyCode(), event.getScanCode(), event.getModifiers())) {
+        AbstractContainerScreen<?> screen = AugmentedScreens.of(event.getScreen());
+        if (screen == null) {
+            return;
+        }
+        if (InventorySearchBar.isAttached(screen) && InventorySearchBar.matchesToggleKey(event.getKeyCode(), event.getScanCode())) {
+            InventorySearchBar.toggle();
+            HotbarSwapKeys.suppressNextChar();
+            event.setCanceled(true);
+            return;
+        }
+        if (InventorySearchBar.isFocused() && HotbarSwapKeys.handle(screen, event.getKeyCode(), event.getScanCode())) {
+            event.setCanceled(true);
+            return;
+        }
+        if (InventorySearchBar.keyPressed(event.getKeyCode(), event.getScanCode(), event.getModifiers())) {
             event.setCanceled(true);
         }
     }

@@ -13,6 +13,8 @@
   "key.legendaryinventory.sort": "Inventar sortieren",
   "key.legendaryinventory.show_weight": "Gewichtsleiste anzeigen",
   "key.legendaryinventory.expand": "Inventar erweitern",
+
+  "key.legendaryinventory.search": "Inventarsuche umschalten",
   "gui.legendaryinventory.sort.weight": "Strg: nach GEWICHT sortieren",
   "gui.legendaryinventory.sort.menu.title": "Sortierknopf",
   "gui.legendaryinventory.sort.menu.move": "Verschieben",
