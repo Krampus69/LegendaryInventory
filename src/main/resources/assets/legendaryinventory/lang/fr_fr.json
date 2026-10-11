@@ -13,6 +13,8 @@
   "key.legendaryinventory.sort": "Trier l'inventaire",
   "key.legendaryinventory.show_weight": "Afficher la barre de poids",
   "key.legendaryinventory.expand": "Agrandir l'inventaire",
+
+  "key.legendaryinventory.search": "Afficher la recherche d'inventaire",
   "gui.legendaryinventory.sort.weight": "Ctrl : trier par POIDS",
   "gui.legendaryinventory.sort.menu.title": "Bouton de tri",
   "gui.legendaryinventory.sort.menu.move": "Déplacer",

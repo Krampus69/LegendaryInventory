@@ -1,5 +1,6 @@
 package com.krampus.legendaryinventory.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.krampus.legendaryinventory.LegendaryInventory;
 import com.krampus.legendaryinventory.inventory.CombinedInventoryHandler;
 import com.krampus.legendaryinventory.menu.ScrollContext;
@@ -59,6 +60,18 @@ public final class InventorySearchBar {
 
     public static boolean isOpen(AbstractContainerScreen<?> target) {
         return open && screen == target;
+    }
+
+    public static boolean isAttached(AbstractContainerScreen<?> target) {
+        return box != null && screen == target;
+    }
+
+    public static boolean matchesToggleKey(int keyCode, int scanCode) {
+        InputConstants.Key key = LIKeys.SEARCH.getKey();
+        if (key.getType() == InputConstants.Type.SCANCODE) {
+            return key.getValue() == scanCode;
+        }
+        return key.getType() == InputConstants.Type.KEYSYM && key.getValue() == keyCode;
     }
 
     public static int frameBottomBelowPanel() {

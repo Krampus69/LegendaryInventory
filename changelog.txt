@@ -1,5 +1,5 @@
 legendaryinventory-1.20.1 Changelog
-1.2.3
+1.2.4
 ====
-Fixed a potential duplicate
-Fixed Loot Journal compat
+Fixed Inventory Expansion scroll compat
+Added a keybind to open the search bar quickly

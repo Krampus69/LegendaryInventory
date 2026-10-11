@@ -36,6 +36,14 @@ public final class LIKeys {
         "key.categories.inventory"
     );
 
+    public static final KeyMapping SEARCH = new KeyMapping(
+        "key.legendaryinventory.search",
+        KeyConflictContext.GUI,
+        InputConstants.Type.KEYSYM,
+        GLFW.GLFW_KEY_GRAVE_ACCENT,
+        "key.categories.inventory"
+    );
+
     private LIKeys() {}
 
     @Mod.EventBusSubscriber(modid = LegendaryInventory.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -45,6 +53,7 @@ public final class LIKeys {
             event.register(SORT);
             event.register(SHOW_WEIGHT);
             event.register(EXPAND);
+            event.register(SEARCH);
         }
     }
 }

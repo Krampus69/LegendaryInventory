@@ -2,6 +2,7 @@ package com.krampus.legendaryinventory.client;
 
 import com.krampus.legendaryinventory.LegendaryInventory;
 import com.krampus.legendaryinventory.client.gui.LIScreen;
+import com.krampus.legendaryinventory.compat.InventoryExpansionCompat;
 import com.krampus.legendaryinventory.menu.MenuAugment;
 import com.krampus.legendaryinventory.menu.ScrollContext;
 import com.krampus.legendaryinventory.menu.ScrollRegistry;
@@ -14,6 +15,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ContainerScreenEvent;
@@ -254,6 +256,10 @@ public final class ClientMenuAugmentEvents {
             return;
         }
         if (!AugmentedScreens.overWindow(screen, event.getMouseX(), event.getMouseY())) {
+            return;
+        }
+        Slot hovered = AugmentedScreens.slotAt(screen, event.getMouseX(), event.getMouseY());
+        if (hovered != null && hovered.hasItem() && InventoryExpansionCompat.claimsWheel(hovered.getItem())) {
             return;
         }
         if (Screen.hasControlDown()) {

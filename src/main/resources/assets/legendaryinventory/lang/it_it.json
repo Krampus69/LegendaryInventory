@@ -13,6 +13,8 @@
   "key.legendaryinventory.sort": "Ordina inventario",
   "key.legendaryinventory.show_weight": "Mostra barra del peso",
   "key.legendaryinventory.expand": "Espandi inventario",
+
+  "key.legendaryinventory.search": "Mostra ricerca inventario",
   "gui.legendaryinventory.sort.weight": "Ctrl: ordina per PESO",
   "gui.legendaryinventory.sort.menu.title": "Pulsante di ordinamento",
   "gui.legendaryinventory.sort.menu.move": "Sposta",
