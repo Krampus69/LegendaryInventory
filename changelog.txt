@@ -2,3 +2,4 @@ legendaryinventory-1.20.1 Changelog
 1.2.3
 ====
 Fixed a potential duplicate
+Fixed Loot Journal compat
