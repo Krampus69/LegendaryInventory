@@ -9,6 +9,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -17,14 +19,24 @@ public final class PickupEvents {
 
     private PickupEvents() {}
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOW)
     public static void onPickup(EntityItemPickupEvent event) {
+        if (event.getResult() == Event.Result.ALLOW) {
+            return;
+        }
         Player player = event.getEntity();
         ItemEntity entity = event.getItem();
-        if (player.level().isClientSide() || entity.hasPickUpDelay() || entity.isRemoved()) {
+        if (player.level().isClientSide()) {
             return;
         }
         ItemStack stack = entity.getItem();
+        if (entity.isRemoved() || stack.isEmpty()) {
+            event.setCanceled(true);
+            return;
+        }
+        if (entity.hasPickUpDelay()) {
+            return;
+        }
         if (!ExtendedAccess.accepts(stack)) {
             return;
         }

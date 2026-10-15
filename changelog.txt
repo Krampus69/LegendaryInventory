@@ -1,5 +1,4 @@
 legendaryinventory-1.20.1 Changelog
-1.2.4
+1.2.4.1
 ====
-Fixed Inventory Expansion scroll compat
-Added a keybind to open the search bar quickly
+Fixed Duplication issue with Alex Exemplified mod
