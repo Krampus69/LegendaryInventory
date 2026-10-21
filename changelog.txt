@@ -1,4 +1,4 @@
 legendaryinventory-1.20.1 Changelog
-1.2.4.1
+1.2.4.2
 ====
-Fixed Duplication issue with Alex Exemplified mod
+Fixed log spam

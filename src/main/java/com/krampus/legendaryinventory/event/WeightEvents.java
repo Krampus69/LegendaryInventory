@@ -133,6 +133,9 @@ public final class WeightEvents {
             if (!(event.player instanceof ServerPlayer player)) {
                 return;
             }
+            if (!player.isAlive()) {
+                return;
+            }
 
             if (player.isCreative() || player.isSpectator()) {
                 clear(player);

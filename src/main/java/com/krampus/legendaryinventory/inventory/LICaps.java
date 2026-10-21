@@ -30,9 +30,11 @@ public final class LICaps {
 
     public static ExtendedInventory get(Player player) {
         return player.getCapability(EXTENDED).orElseGet(() -> {
-            LegendaryInventory.LOGGER.error(
-                "Extended inventory capability missing on {}, returning a detached inventory",
-                player.getName().getString());
+            if (player.isAlive()) {
+                LegendaryInventory.LOGGER.warn(
+                    "Extended inventory capability missing on {}, returning a detached inventory",
+                    player.getName().getString());
+            }
             return new ExtendedInventory();
         });
     }
