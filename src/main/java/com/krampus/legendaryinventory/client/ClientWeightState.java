@@ -14,6 +14,7 @@ public final class ClientWeightState {
     public static void set(int value, int maximum) {
         if (weight >= 0 && value != weight && System.currentTimeMillis() >= suppressUntil) {
             flashUntil = System.currentTimeMillis() + FLASH_MILLIS;
+            WeightIconOverlay.pop(value - weight);
         }
         weight = value;
         capacity = maximum;

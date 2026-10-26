@@ -41,6 +41,7 @@ public final class LIConfig {
     public enum WeightBarMode {
         FLASH,
         ALWAYS,
+        ICON,
         OFF
     }
 
@@ -178,6 +179,9 @@ public final class LIConfig {
     public static final class Client {
 
         public final ModConfigSpec.EnumValue<WeightBarMode> weightBar;
+        public final ModConfigSpec.BooleanValue iconMoved;
+        public final ModConfigSpec.IntValue iconX;
+        public final ModConfigSpec.IntValue iconY;
         public final ModConfigSpec.BooleanValue itemTooltipWeight;
         public final ModConfigSpec.BooleanValue scrollBarVisible;
         public final ModConfigSpec.BooleanValue inventoryExpanded;
@@ -187,8 +191,17 @@ public final class LIConfig {
             weightBar = b.comment(
                     "FLASH: the weight bar replaces the XP bar for a moment when the weight changes and while stalled.",
                     "ALWAYS: the weight bar permanently replaces the XP bar.",
+                    "ICON: a bag icon to the right of the hotbar shows the weight in percent, hold the show weight key for the exact numbers.",
                     "OFF: never show the weight bar."
-            ).defineEnum("weightBar", WeightBarMode.FLASH);
+            ).defineEnum("weightBar", WeightBarMode.ICON);
+            iconMoved = b.comment(
+                    "True once the weight icon was placed by hand from the Options menu of the inventory weight bar.",
+                    "While false the icon sits next to the hotbar and moves aside for the offhand slot, the attack indicator and the LSO body damage mannequin."
+            ).define("iconMoved", false);
+            iconX = b.comment("Left edge of the weight icon, relative to the screen center. Used when iconMoved is true.")
+                    .defineInRange("iconX", 0, -10000, 10000);
+            iconY = b.comment("Top edge of the weight icon, relative to the screen bottom. Used when iconMoved is true.")
+                    .defineInRange("iconY", -22, -10000, 10000);
             b.pop();
 
             b.push("tooltip");

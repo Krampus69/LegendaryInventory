@@ -12,12 +12,14 @@ import org.lwjgl.glfw.GLFW;
 
 public final class LIKeys {
 
+    private static final String CATEGORY = "key.categories.legendaryinventory";
+
     public static final KeyMapping SORT = new KeyMapping(
         "key.legendaryinventory.sort",
         KeyConflictContext.GUI,
         InputConstants.Type.KEYSYM,
         GLFW.GLFW_KEY_R,
-        "key.categories.inventory"
+        CATEGORY
     );
 
     public static final KeyMapping SHOW_WEIGHT = new KeyMapping(
@@ -25,7 +27,7 @@ public final class LIKeys {
         KeyConflictContext.IN_GAME,
         InputConstants.Type.KEYSYM,
         GLFW.GLFW_KEY_TAB,
-        "key.categories.inventory"
+        CATEGORY
     );
 
     public static final KeyMapping EXPAND = new KeyMapping(
@@ -33,7 +35,7 @@ public final class LIKeys {
         KeyConflictContext.GUI,
         InputConstants.Type.KEYSYM,
         GLFW.GLFW_KEY_TAB,
-        "key.categories.inventory"
+        CATEGORY
     );
 
     public static final KeyMapping SEARCH = new KeyMapping(
@@ -41,7 +43,7 @@ public final class LIKeys {
         KeyConflictContext.GUI,
         InputConstants.Type.KEYSYM,
         GLFW.GLFW_KEY_GRAVE_ACCENT,
-        "key.categories.inventory"
+        CATEGORY
     );
 
     private LIKeys() {}
