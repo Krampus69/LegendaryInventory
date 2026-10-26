@@ -1,4 +1,10 @@
 legendaryinventory-1.21.1 Changelog
-1.2.4
+1.2.5
 ====
-Added a keybind to open the search bar quickly
+New icon mode for the weight display, now the default
+Hold TAB to see exact weight and capacity
+“+N” / “-N” popups when weight changes
+Move the bag icon from the new Options menu
+Optional LSO compat for the body damage mannequin
+Key binds moved to their own category
+Updated default weights
