@@ -9,12 +9,14 @@ import com.krampus.legendaryinventory.net.ExpandPacket;
 import com.krampus.legendaryinventory.net.LINet;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -26,6 +28,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -56,6 +59,10 @@ public final class InventoryExpansion {
     private static final int ROWS_TOP = MAIN_ROW_Y - ScrollContext.EXTRA_ROWS * ROW_H;
     private static final int COVER_TOP = ROWS_TOP - GAP_H - TOP_H;
     private static final int COVER_H = MAIN_ROW_Y - COVER_TOP;
+    private static final int LABEL_X = 8;
+    private static final int LABEL_Y = COVER_TOP + 6;
+    private static final int LABEL_MAX_W = PANEL_FULL_W - LABEL_X - 19;
+    private static final int LABEL_COLOR = 0x404040;
     private static final String[] COVERED_WIDGETS = {
         "top.theillusivec4.curios.client.gui.CuriosButton"
     };
@@ -210,5 +217,30 @@ public final class InventoryExpansion {
             drawn += h;
         }
         RenderSystem.depthFunc(GL11.GL_LEQUAL);
+    }
+
+    public static void renderLabel(GuiGraphics g, AbstractContainerScreen<?> screen) {
+        if (!isExpanded(screen) || LIKeys.EXPAND.isUnbound()) {
+            return;
+        }
+        Font font = Minecraft.getInstance().font;
+        String key = LIKeys.EXPAND.getTranslatedKeyMessage().getString().toUpperCase(Locale.ROOT);
+        Component text = Component.translatable("gui.legendaryinventory.expanded.hint", key);
+        int width = font.width(text);
+        double gui = Minecraft.getInstance().getWindow().getGuiScale();
+        float scale = 1.0F;
+        if (width > LABEL_MAX_W) {
+            int pixels = (int) Math.floor(gui * LABEL_MAX_W / width);
+            if (pixels >= 1) {
+                scale = (float) (pixels / gui);
+            }
+        }
+        float offset = (float) (Math.round(font.lineHeight * (1.0F - scale) / 2.0F * gui) / gui);
+        float y = screen.getGuiTop() + LABEL_Y + offset;
+        g.pose().pushPose();
+        g.pose().translate(screen.getGuiLeft() + LABEL_X, y, 0.0F);
+        g.pose().scale(scale, scale, 1.0F);
+        g.drawString(font, text, 0, 0, LABEL_COLOR, false);
+        g.pose().popPose();
     }
 }

@@ -80,7 +80,8 @@ public final class WeightBarOverlay {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         LIConfig.WeightBarMode mode = LIConfig.CLIENT.weightBar.get();
-        if (mode == LIConfig.WeightBarMode.OFF || player == null || mc.options.hideGui
+        if (mode == LIConfig.WeightBarMode.OFF || mode == LIConfig.WeightBarMode.ICON
+                || player == null || mc.options.hideGui
                 || player.isCreative() || player.isSpectator() || !WeightTable.isReady()) {
             alpha = 0.0F;
             lastNanos = 0L;

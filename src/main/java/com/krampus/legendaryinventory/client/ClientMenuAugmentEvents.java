@@ -132,6 +132,7 @@ public final class ClientMenuAugmentEvents {
             return;
         }
         InventoryExpansion.renderCover(event.getGuiGraphics(), screen);
+        InventoryExpansion.renderLabel(event.getGuiGraphics(), screen);
         InventoryWeightBar.render(event.getGuiGraphics(), screen);
         InventoryScrollBar.render(event.getGuiGraphics(), screen);
         clampScroll(screen.getMenu());

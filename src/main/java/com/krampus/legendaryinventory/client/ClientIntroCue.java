@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component;
 
 public final class ClientIntroCue {
 
-    private static final long SHOW_MILLIS = 3000L;
+    private static final long SHOW_MILLIS = 8000L;
     private static final long FADE_MILLIS = 500L;
     private static final int BOTTOM_OFFSET = 68;
     private static final int PADDING = 4;

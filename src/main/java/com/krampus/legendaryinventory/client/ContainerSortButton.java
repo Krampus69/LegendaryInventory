@@ -25,6 +25,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public final class ContainerSortButton {
 
@@ -44,8 +45,9 @@ public final class ContainerSortButton {
     private static final int MENU_TEXT = 0xAAAAAA;
     private static final int MENU_HOVER = 0xFFFFFF;
     private static final Component MENU_TITLE = Component.translatable("gui.legendaryinventory.sort.menu.title");
+    private static final Component OPTIONS_TITLE = Component.translatable("gui.legendaryinventory.options.title");
 
-    private enum Action { MOVE, HIDE, SHOW, RESET }
+    private enum Action { MOVE, HIDE, SHOW, RESET, MOVE_ICON, RESET_ICON }
 
     private static boolean keyHeld;
 
@@ -53,6 +55,7 @@ public final class ContainerSortButton {
     private static int menuX;
     private static int menuY;
     private static MenuEntry[] menuEntries = new MenuEntry[0];
+    private static Component menuTitle = MENU_TITLE;
 
     private static AbstractContainerScreen<?> moveScreen;
     private static int moveX;
@@ -68,6 +71,7 @@ public final class ContainerSortButton {
         keyHeld = false;
         menuScreen = null;
         moveScreen = null;
+        WeightIconOverlay.cancelMove();
     }
 
     private static boolean augmented(AbstractContainerScreen<?> screen) {
@@ -125,7 +129,7 @@ public final class ContainerSortButton {
     }
 
     public static boolean busy(AbstractContainerScreen<?> screen) {
-        return menuScreen == screen || moveScreen == screen;
+        return menuScreen == screen || moveScreen == screen || WeightIconOverlay.isMoving(screen);
     }
 
     public static void renderForeground(GuiGraphics g, AbstractContainerScreen<?> screen, int mouseX, int mouseY) {
@@ -141,6 +145,10 @@ public final class ContainerSortButton {
     }
 
     public static void renderTooltip(GuiGraphics g, AbstractContainerScreen<?> screen, int mouseX, int mouseY) {
+        if (WeightIconOverlay.isMoving(screen)) {
+            WeightIconOverlay.renderMove(g, screen);
+            return;
+        }
         if (menuScreen == screen) {
             renderMenu(g, mouseX, mouseY);
             return;
@@ -162,6 +170,7 @@ public final class ContainerSortButton {
     }
 
     public static void mouseMoved(AbstractContainerScreen<?> screen, double mouseX, double mouseY) {
+        WeightIconOverlay.mouseMoved(screen, mouseX, mouseY);
         if (moveScreen != screen) {
             return;
         }
@@ -184,8 +193,15 @@ public final class ContainerSortButton {
     }
 
     public static boolean mousePressed(AbstractContainerScreen<?> screen, double mouseX, double mouseY, int button) {
-        if (!enabled() || !augmented(screen)) {
+        if (!augmented(screen)) {
             return false;
+        }
+        if (WeightIconOverlay.isMoving(screen)) {
+            WeightIconOverlay.finishMove(button == 0);
+            if (button == 0) {
+                sound();
+            }
+            return true;
         }
         if (menuScreen == screen) {
             Action action = button == 0 ? menuEntryAt(mouseX, mouseY) : null;
@@ -207,12 +223,15 @@ public final class ContainerSortButton {
             return false;
         }
         if (hovered(screen, mouseX, mouseY)) {
-            openMenu(screen, mouseX, mouseY, Action.MOVE, Action.HIDE, Action.RESET);
+            openMenu(screen, mouseX, mouseY, MENU_TITLE, Action.MOVE, Action.HIDE, Action.RESET);
             return true;
         }
-        if (SortButtonLayout.isHidden(screen) && InventoryWeightBar.hovered(screen, mouseX, mouseY)) {
-            openMenu(screen, mouseX, mouseY, Action.SHOW);
-            return true;
+        if (InventoryWeightBar.hovered(screen, mouseX, mouseY)) {
+            Action[] options = options(screen);
+            if (options.length > 0) {
+                openMenu(screen, mouseX, mouseY, OPTIONS_TITLE, options);
+                return true;
+            }
         }
         return false;
     }
@@ -229,7 +248,25 @@ public final class ContainerSortButton {
             moveScreen = null;
             return true;
         }
+        if (WeightIconOverlay.isMoving(screen)) {
+            WeightIconOverlay.cancelMove();
+            return true;
+        }
         return false;
+    }
+
+    private static Action[] options(AbstractContainerScreen<?> screen) {
+        List<Action> options = new ArrayList<>(3);
+        if (enabled() && SortButtonLayout.isHidden(screen)) {
+            options.add(Action.SHOW);
+        }
+        if (WeightIconOverlay.active()) {
+            options.add(Action.MOVE_ICON);
+            if (WeightIconOverlay.isCustom()) {
+                options.add(Action.RESET_ICON);
+            }
+        }
+        return options.toArray(new Action[0]);
     }
 
     private static void run(AbstractContainerScreen<?> screen, Action action) {
@@ -244,6 +281,8 @@ public final class ContainerSortButton {
             case HIDE -> SortButtonLayout.setHidden(screen, true);
             case SHOW -> SortButtonLayout.setHidden(screen, false);
             case RESET -> SortButtonLayout.reset(screen);
+            case MOVE_ICON -> WeightIconOverlay.startMove(screen);
+            case RESET_ICON -> WeightIconOverlay.resetPosition();
         }
     }
 
@@ -252,8 +291,10 @@ public final class ContainerSortButton {
                 SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
-    private static void openMenu(AbstractContainerScreen<?> screen, double mouseX, double mouseY, Action... actions) {
+    private static void openMenu(AbstractContainerScreen<?> screen, double mouseX, double mouseY,
+                                 Component title, Action... actions) {
         menuScreen = screen;
+        menuTitle = title;
         menuEntries = new MenuEntry[actions.length];
         Font font = Minecraft.getInstance().font;
         int w = 0;
@@ -262,13 +303,13 @@ public final class ContainerSortButton {
             w = Math.max(w, menuEntries[i].getWidth(font));
         }
         int h = (actions.length + 1) * MENU_ROW;
-        w = Math.max(w, font.width(MENU_TITLE));
+        w = Math.max(w, font.width(menuTitle));
         menuX = Math.max(MENU_PAD, Math.min(screen.width - w - MENU_PAD, (int) mouseX));
         menuY = Math.max(MENU_PAD, Math.min(screen.height - h - MENU_PAD, (int) mouseY));
     }
 
     private static Component label(Action action) {
-        return Component.translatable("gui.legendaryinventory.sort.menu." + action.name().toLowerCase());
+        return Component.translatable("gui.legendaryinventory.sort.menu." + action.name().toLowerCase(Locale.ROOT));
     }
 
     private static Action menuEntryAt(double mouseX, double mouseY) {
@@ -286,7 +327,7 @@ public final class ContainerSortButton {
             entry.hovered = entry.action == hovered;
         }
         List<ClientTooltipComponent> components = new ArrayList<>(menuEntries.length + 1);
-        components.add(ClientTooltipComponent.create(MENU_TITLE.getVisualOrderText()));
+        components.add(ClientTooltipComponent.create(menuTitle.getVisualOrderText()));
         components.addAll(List.of(menuEntries));
         ((GuiGraphicsAccessor) g).legendaryinventory$renderTooltipInternal(
                 Minecraft.getInstance().font, components, menuX, menuY, MENU_POSITIONER);
