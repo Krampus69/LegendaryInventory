@@ -1,0 +1,14 @@
+{
+  "inventory_expand": {
+    "subtitle": "subtitles.legendaryinventory.inventory_expand",
+    "sounds": [
+      "legendaryinventory:inventory_expand"
+    ]
+  },
+  "inventory_collapse": {
+    "subtitle": "subtitles.legendaryinventory.inventory_collapse",
+    "sounds": [
+      "legendaryinventory:inventory_collapse"
+    ]
+  }
+}
