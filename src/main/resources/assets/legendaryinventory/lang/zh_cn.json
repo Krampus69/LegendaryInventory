@@ -24,6 +24,8 @@
   "gui.legendaryinventory.sort.menu.move_icon": "移动物品栏图标",
   "gui.legendaryinventory.sort.menu.reset_icon": "重置物品栏图标",
   "gui.legendaryinventory.options.title": "选项",
+  "subtitles.legendaryinventory.inventory_expand": "物品栏展开",
+  "subtitles.legendaryinventory.inventory_collapse": "物品栏收起",
   "gui.legendaryinventory.weight.search": "搜索",
   "gui.legendaryinventory.weight.scrollbar": "显示/隐藏滚动条",
   "gui.legendaryinventory.compat.waystones.blocked": "负重过重，无法使用路标石",

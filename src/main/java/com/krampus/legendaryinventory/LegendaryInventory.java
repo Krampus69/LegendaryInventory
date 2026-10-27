@@ -4,6 +4,7 @@ import com.krampus.legendaryinventory.compat.WaystonesCompat;
 import com.krampus.legendaryinventory.config.LIConfig;
 import com.krampus.legendaryinventory.inventory.LIAttachments;
 import com.krampus.legendaryinventory.item.LIItems;
+import com.krampus.legendaryinventory.sound.LISounds;
 import com.krampus.legendaryinventory.item.WeightTabletItem;
 import com.krampus.legendaryinventory.menu.LIMenus;
 import com.krampus.legendaryinventory.weight.LIAttributes;
@@ -26,6 +27,7 @@ public class LegendaryInventory {
         LIAttributes.ATTRIBUTES.register(modBus);
         LIMenus.MENUS.register(modBus);
         LIItems.ITEMS.register(modBus);
+        LISounds.SOUNDS.register(modBus);
         LIItems.COMPONENTS.register(modBus);
         LIAttachments.ATTACHMENTS.register(modBus);
         LIConfig.register(container);

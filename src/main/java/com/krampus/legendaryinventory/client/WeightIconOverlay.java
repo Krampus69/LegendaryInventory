@@ -45,7 +45,7 @@ public final class WeightIconOverlay {
     private static final int SNAP = 3;
     private static final float MOVE_Z = 300.0F;
 
-    private static final int NUMBER_CENTER_Y = 11;
+    private static final int NUMBER_CENTER_Y = 13;
     private static final int NUMBER_MAX_W = 18;
     private static final int GLYPH_H = 7;
 
@@ -54,8 +54,8 @@ public final class WeightIconOverlay {
 
     private static final long POPUP_MILLIS = 1000L;
     private static final long MERGE_MILLIS = 250L;
-    private static final int POPUP_START = -10;
-    private static final int POPUP_END = 8;
+    private static final int POPUP_START = -15;
+    private static final int POPUP_END = 3;
     private static final int MAX_POPUPS = 4;
     private static final float POPUP_FADE_IN = 0.15F;
     private static final float POPUP_FADE_OUT = 0.6F;
@@ -64,9 +64,13 @@ public final class WeightIconOverlay {
     private static final float MIN_ALPHA = 0.02F;
 
     private static final int TEXT = 0xFFFFFF;
-    private static final int HEAVY = 0xFF8FB0;
-    private static final int CRITICAL = 0xFF5555;
-    private static final int LOSS = 0xFF8080;
+    private static final int GAIN = 0x53DA00;
+    private static final int HALF = 0xFFBE2D;
+    private static final int NEAR_FULL = 0xFF7C1C;
+    private static final int FULL = 0xE63135;
+    private static final int HALF_PERCENT = 50;
+    private static final int NEAR_FULL_PERCENT = 90;
+    private static final int FULL_PERCENT = 100;
     private static final int OUTLINE = 0x000000;
 
     private static final class Popup {
@@ -268,7 +272,7 @@ public final class WeightIconOverlay {
             carried = CarryLoad.carriedWeight(player);
         }
         int capacity = CarryLoad.capacity(player);
-        int color = tierColor(CarryLoad.tierFor(carried, capacity));
+        int color = loadColor(percent(carried, capacity));
         double scale = mc.getWindow().getGuiScale();
         Font font = mc.font;
 
@@ -296,12 +300,15 @@ public final class WeightIconOverlay {
         return (int) ((long) carried * 100L / capacity);
     }
 
-    private static int tierColor(int tier) {
-        if (tier >= 4) {
-            return CRITICAL;
+    private static int loadColor(int percent) {
+        if (percent >= FULL_PERCENT) {
+            return FULL;
         }
-        if (tier == 3) {
-            return HEAVY;
+        if (percent >= NEAR_FULL_PERCENT) {
+            return NEAR_FULL;
+        }
+        if (percent >= HALF_PERCENT) {
+            return HALF;
         }
         return TEXT;
     }
@@ -405,7 +412,7 @@ public final class WeightIconOverlay {
             float ty = snap(y + from + (to - from) * eased, scale);
             g.pose().pushPose();
             g.pose().translate(tx, ty, 0.0F);
-            outlined(g, font, text, 0, 0, gain ? TEXT : LOSS, opacity);
+            outlined(g, font, text, 0, 0, gain ? GAIN : FULL, opacity);
             g.pose().popPose();
         }
     }

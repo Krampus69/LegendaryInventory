@@ -18,6 +18,6 @@ public final class CoveredSlots {
 
     public static boolean isHidden(Slot slot) {
         ScrollContext context = COVERED.get(slot);
-        return context != null && context.isExpanded();
+        return context != null && context.isExpanded() && !context.isCoveredRevealed();
     }
 }

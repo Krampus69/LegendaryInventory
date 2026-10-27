@@ -185,6 +185,7 @@ public final class LIConfig {
         public final ModConfigSpec.BooleanValue itemTooltipWeight;
         public final ModConfigSpec.BooleanValue scrollBarVisible;
         public final ModConfigSpec.BooleanValue inventoryExpanded;
+        public final ModConfigSpec.BooleanValue expandAnimation;
 
         Client(ModConfigSpec.Builder b) {
             b.push("hud");
@@ -217,6 +218,9 @@ public final class LIConfig {
             inventoryExpanded = b.comment(
                     "Show 9 inventory rows on the player inventory screen, covering the crafting and armor area. Toggled in game with the expand key."
             ).define("inventoryExpanded", false);
+            expandAnimation = b.comment(
+                    "Slide the extra rows in and out when the expand key is pressed instead of switching instantly."
+            ).define("expandAnimation", true);
             b.pop();
         }
     }

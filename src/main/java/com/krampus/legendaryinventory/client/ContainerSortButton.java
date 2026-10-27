@@ -4,6 +4,7 @@ import com.krampus.legendaryinventory.LegendaryInventory;
 import com.krampus.legendaryinventory.config.LIConfig;
 import com.krampus.legendaryinventory.menu.LISlot;
 import com.krampus.legendaryinventory.mixin.client.GuiGraphicsAccessor;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -39,6 +40,7 @@ public final class ContainerSortButton {
     private static final int RIGHT_MARGIN = 17;
     private static final int TOP_MARGIN = 5;
     private static final int SNAP = 3;
+    private static final long POP_MILLIS = 50L;
 
     private static final int MENU_PAD = 3;
     private static final int MENU_ROW = 12;
@@ -58,6 +60,8 @@ public final class ContainerSortButton {
     private static Component menuTitle = MENU_TITLE;
 
     private static AbstractContainerScreen<?> moveScreen;
+    private static AbstractContainerScreen<?> popScreen;
+    private static long popStart;
     private static int moveX;
     private static int moveY;
 
@@ -71,7 +75,29 @@ public final class ContainerSortButton {
         keyHeld = false;
         menuScreen = null;
         moveScreen = null;
+        popScreen = null;
         WeightIconOverlay.cancelMove();
+    }
+
+    public static void popAt(AbstractContainerScreen<?> screen, long millis) {
+        popScreen = screen;
+        popStart = millis;
+    }
+
+    private static float popScale(AbstractContainerScreen<?> screen) {
+        if (popScreen != screen) {
+            return 1.0F;
+        }
+        long elapsed = Util.getMillis() - popStart;
+        if (elapsed >= POP_MILLIS) {
+            popScreen = null;
+            return 1.0F;
+        }
+        if (elapsed < 0L) {
+            return 1.0F;
+        }
+        float t = elapsed / (float) POP_MILLIS;
+        return t * t * (3.0F - 2.0F * t);
     }
 
     private static boolean augmented(AbstractContainerScreen<?> screen) {
@@ -84,7 +110,7 @@ public final class ContainerSortButton {
     }
 
     private static int topEdge(AbstractContainerScreen<?> screen) {
-        return InventoryExpansion.isExpanded(screen) ? InventoryExpansion.coverTop() : 0;
+        return InventoryExpansion.fullyExpanded(screen) ? InventoryExpansion.coverTop() : 0;
     }
 
     private static int[] defaultAnchor(AbstractContainerScreen<?> screen) {
@@ -141,7 +167,12 @@ public final class ContainerSortButton {
             return;
         }
         boolean hover = keyHeld || moveScreen == screen || hovered(screen, mouseX, mouseY);
-        g.blit(TEXTURE, at[0], at[1], 0, hover ? SIZE : 0, SIZE, SIZE, TEX_W, TEX_H);
+        float scale = popScale(screen);
+        g.pose().pushPose();
+        g.pose().translate(at[0] + SIZE / 2.0F, at[1] + SIZE / 2.0F, 0.0F);
+        g.pose().scale(scale, scale, 1.0F);
+        g.blit(TEXTURE, -SIZE / 2, -SIZE / 2, 0, hover ? SIZE : 0, SIZE, SIZE, TEX_W, TEX_H);
+        g.pose().popPose();
     }
 
     public static void renderTooltip(GuiGraphics g, AbstractContainerScreen<?> screen, int mouseX, int mouseY) {

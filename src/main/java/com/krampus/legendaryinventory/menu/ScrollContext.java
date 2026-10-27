@@ -26,6 +26,7 @@ public class ScrollContext {
     private int[] filter = null;
     private boolean expanded = false;
     private boolean expandable = false;
+    private boolean coveredRevealed = false;
 
     private int cachedVisible = -1;
     private long cachedTime = -1L;
@@ -67,6 +68,14 @@ public class ScrollContext {
         if (!expandable) {
             this.expanded = false;
         }
+    }
+
+    public boolean isCoveredRevealed() {
+        return coveredRevealed;
+    }
+
+    public void setCoveredRevealed(boolean revealed) {
+        this.coveredRevealed = revealed;
     }
 
     public boolean isExpanded() {
