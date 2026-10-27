@@ -186,6 +186,7 @@ public final class LIConfig {
         public final ForgeConfigSpec.BooleanValue itemTooltipWeight;
         public final ForgeConfigSpec.BooleanValue scrollBarVisible;
         public final ForgeConfigSpec.BooleanValue inventoryExpanded;
+        public final ForgeConfigSpec.BooleanValue expandAnimation;
 
         Client(ForgeConfigSpec.Builder b) {
             b.push("hud");
@@ -218,6 +219,9 @@ public final class LIConfig {
             inventoryExpanded = b.comment(
                     "Show 7 inventory rows on the player inventory screen, covering the crafting and armor area. Toggled in game with the expand key."
             ).define("inventoryExpanded", false);
+            expandAnimation = b.comment(
+                    "Slide the extra rows in and out when the expand key is pressed instead of switching instantly."
+            ).define("expandAnimation", true);
             b.pop();
         }
     }

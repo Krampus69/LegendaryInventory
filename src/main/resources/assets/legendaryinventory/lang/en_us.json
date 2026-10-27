@@ -24,6 +24,8 @@
   "gui.legendaryinventory.sort.menu.move_icon": "Move inventory icon",
   "gui.legendaryinventory.sort.menu.reset_icon": "Reset inventory icon",
   "gui.legendaryinventory.options.title": "Options",
+  "subtitles.legendaryinventory.inventory_expand": "Inventory expands",
+  "subtitles.legendaryinventory.inventory_collapse": "Inventory collapses",
   "gui.legendaryinventory.weight.search": "Search",
   "gui.legendaryinventory.weight.scrollbar": "Toggle scroll bar",
   "gui.legendaryinventory.compat.waystones.blocked": "You are too heavy to use a waystone",

@@ -6,6 +6,7 @@ import com.krampus.legendaryinventory.compat.TrashSlotCompat;
 import com.krampus.legendaryinventory.compat.WaystonesCompat;
 import com.krampus.legendaryinventory.config.LIConfig;
 import com.krampus.legendaryinventory.item.LIItems;
+import com.krampus.legendaryinventory.sound.LISounds;
 import com.krampus.legendaryinventory.item.WeightTabletItem;
 import com.krampus.legendaryinventory.menu.LIMenus;
 import com.krampus.legendaryinventory.net.LINet;
@@ -34,6 +35,7 @@ public class LegendaryInventory {
         LIAttributes.ATTRIBUTES.register(modBus);
         LIMenus.MENUS.register(modBus);
         LIItems.ITEMS.register(modBus);
+        LISounds.SOUNDS.register(modBus);
         LIConfig.register();
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::clientSetup);

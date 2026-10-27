@@ -17,7 +17,7 @@ public abstract class InventoryScreenMixin {
         cancellable = true
     )
     private void legendaryinventory$hideLabels(GuiGraphics g, int mouseX, int mouseY, CallbackInfo ci) {
-        if (InventoryExpansion.isExpanded((InventoryScreen) (Object) this)) {
+        if (InventoryExpansion.fullyExpanded((InventoryScreen) (Object) this)) {
             ci.cancel();
         }
     }
@@ -31,7 +31,7 @@ public abstract class InventoryScreenMixin {
         cancellable = true
     )
     private void legendaryinventory$hideModel(GuiGraphics g, float partialTick, int mouseX, int mouseY, CallbackInfo ci) {
-        if (InventoryExpansion.isExpanded((InventoryScreen) (Object) this)) {
+        if (InventoryExpansion.fullyExpanded((InventoryScreen) (Object) this)) {
             ci.cancel();
         }
     }

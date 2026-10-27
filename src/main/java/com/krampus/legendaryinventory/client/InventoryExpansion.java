@@ -7,6 +7,7 @@ import com.krampus.legendaryinventory.menu.ScrollContext;
 import com.krampus.legendaryinventory.menu.ScrollRegistry;
 import com.krampus.legendaryinventory.net.ExpandPacket;
 import com.krampus.legendaryinventory.net.LINet;
+import com.krampus.legendaryinventory.sound.LISounds;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -20,7 +21,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -91,6 +91,18 @@ public final class InventoryExpansion {
         return COVER_TOP;
     }
 
+    public static int coverHeight() {
+        return COVER_H;
+    }
+
+    public static int rowsTop() {
+        return ROWS_TOP;
+    }
+
+    public static int panelWidth() {
+        return PANEL_FULL_W;
+    }
+
     public static boolean supports(AbstractContainerScreen<?> screen) {
         return screen instanceof InventoryScreen && !(screen instanceof LIScreen);
     }
@@ -101,6 +113,10 @@ public final class InventoryExpansion {
         }
         ScrollContext context = ScrollRegistry.get(screen.getMenu());
         return context != null && context.isExpandable() ? context : null;
+    }
+
+    public static boolean fullyExpanded(AbstractContainerScreen<?> screen) {
+        return isExpanded(screen) && !ExpandAnimator.animating(screen);
     }
 
     public static boolean isExpanded(AbstractContainerScreen<?> screen) {
@@ -129,15 +145,21 @@ public final class InventoryExpansion {
         if (context == null) {
             return false;
         }
+        if (ExpandAnimator.animating(screen)) {
+            return true;
+        }
         boolean value = !context.isExpanded();
         LIConfig.CLIENT.inventoryExpanded.set(value);
         LIConfig.CLIENT_SPEC.save();
         context.setExpanded(value);
         ScrollAnimator.reset(context);
+        if (LIConfig.CLIENT.expandAnimation.get()) {
+            ExpandAnimator.begin(screen, context, value);
+        }
         context.markSent();
         LINet.toServer(new ExpandPacket(value));
-        Minecraft.getInstance().getSoundManager().play(
-                SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(
+                value ? LISounds.INVENTORY_EXPAND.get() : LISounds.INVENTORY_COLLAPSE.get(), 1.0F));
         return true;
     }
 
@@ -145,7 +167,7 @@ public final class InventoryExpansion {
         if (!supports(screen)) {
             return;
         }
-        boolean expanded = isExpanded(screen);
+        boolean expanded = fullyExpanded(screen);
         int left = screen.getGuiLeft();
         int top = screen.getGuiTop() + COVER_TOP;
         int right = left + PANEL_FULL_W;
@@ -182,9 +204,13 @@ public final class InventoryExpansion {
     }
 
     public static void renderCover(GuiGraphics g, AbstractContainerScreen<?> screen) {
-        if (!isExpanded(screen)) {
+        if (!isExpanded(screen) || ExpandAnimator.animating(screen)) {
             return;
         }
+        drawCover(g, screen);
+    }
+
+    public static void drawCover(GuiGraphics g, AbstractContainerScreen<?> screen) {
         int guiLeft = screen.getGuiLeft();
         int guiTop = screen.getGuiTop();
         int left = guiLeft + PANEL_X;
@@ -220,7 +246,7 @@ public final class InventoryExpansion {
     }
 
     public static void renderLabel(GuiGraphics g, AbstractContainerScreen<?> screen) {
-        if (!isExpanded(screen) || LIKeys.EXPAND.isUnbound()) {
+        if (!isExpanded(screen) || ExpandAnimator.animating(screen) || LIKeys.EXPAND.isUnbound()) {
             return;
         }
         Font font = Minecraft.getInstance().font;

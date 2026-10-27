@@ -66,6 +66,7 @@ public final class ClientMenuAugmentEvents {
         }
         InventorySearchBar.detach();
         ContainerSortButton.reset();
+        ExpandAnimator.reset();
         InventoryScrollBar.mouseReleased();
         if (screen instanceof InventoryScreen) {
             ScrollContext context = ScrollRegistry.get(screen.getMenu());
@@ -120,7 +121,8 @@ public final class ClientMenuAugmentEvents {
         }
         ScrollContext context = ScrollRegistry.get(screen.getMenu());
         ScrollAnimator.tick(context);
-        ScrollAnimator.setWindowHidden(screen, ScrollAnimator.animating(context));
+        ExpandAnimator.tick(screen);
+        ScrollAnimator.setWindowHidden(screen, ScrollAnimator.animating(context) || ExpandAnimator.animating(screen));
         InventoryExpansion.updateWidgets(screen);
         ContainerSortButton.mouseMoved(screen, event.getMouseX(), event.getMouseY());
     }
@@ -161,6 +163,7 @@ public final class ClientMenuAugmentEvents {
         }
         ContainerSortButton.renderTooltip(event.getGuiGraphics(), screen, event.getMouseX(), event.getMouseY());
         InventoryWeightBar.renderTooltip(event.getGuiGraphics(), screen, event.getMouseX(), event.getMouseY());
+        ExpandAnimator.render(event.getGuiGraphics(), Minecraft.getInstance().font, screen, ScrollRegistry.get(screen.getMenu()));
         ClientIntroCue.render(event.getGuiGraphics(), screen);
     }
 

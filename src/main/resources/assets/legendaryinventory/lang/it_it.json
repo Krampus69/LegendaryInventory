@@ -24,6 +24,8 @@
   "gui.legendaryinventory.sort.menu.move_icon": "Sposta icona inventario",
   "gui.legendaryinventory.sort.menu.reset_icon": "Ripristina icona inventario",
   "gui.legendaryinventory.options.title": "Opzioni",
+  "subtitles.legendaryinventory.inventory_expand": "L'inventario si espande",
+  "subtitles.legendaryinventory.inventory_collapse": "L'inventario si riduce",
   "gui.legendaryinventory.weight.search": "Cerca",
   "gui.legendaryinventory.weight.scrollbar": "Mostra/nascondi barra di scorrimento",
   "gui.legendaryinventory.compat.waystones.blocked": "Sei troppo pesante per usare una waystone",

@@ -1,4 +1,4 @@
 legendaryinventory-1.20.1 Changelog
-1.2.4.2
+1.2.6
 ====
-Fixed log spam
+Small visual changes for the UI

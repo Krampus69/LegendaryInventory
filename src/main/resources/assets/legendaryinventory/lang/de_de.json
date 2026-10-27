@@ -24,6 +24,8 @@
   "gui.legendaryinventory.sort.menu.move_icon": "Inventarsymbol verschieben",
   "gui.legendaryinventory.sort.menu.reset_icon": "Inventarsymbol zurücksetzen",
   "gui.legendaryinventory.options.title": "Optionen",
+  "subtitles.legendaryinventory.inventory_expand": "Inventar wird erweitert",
+  "subtitles.legendaryinventory.inventory_collapse": "Inventar wird verkleinert",
   "gui.legendaryinventory.weight.search": "Suchen",
   "gui.legendaryinventory.weight.scrollbar": "Bildlaufleiste ein-/ausblenden",
   "gui.legendaryinventory.compat.waystones.blocked": "Du bist zu schwer, um einen Wegstein zu benutzen",

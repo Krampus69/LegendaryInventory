@@ -66,7 +66,7 @@ public final class SortButtonLayout {
 
     private static String key(AbstractContainerScreen<?> screen) {
         String key = screen.getClass().getName();
-        return InventoryExpansion.isExpanded(screen) ? key + EXPANDED_SUFFIX : key;
+        return InventoryExpansion.fullyExpanded(screen) ? key + EXPANDED_SUFFIX : key;
     }
 
     public static Entry get(AbstractContainerScreen<?> screen) {
