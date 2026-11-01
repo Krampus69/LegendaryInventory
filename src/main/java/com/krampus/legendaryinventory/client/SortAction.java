@@ -7,7 +7,7 @@ public final class SortAction {
 
     private SortAction() {}
 
-    public static void send(boolean byWeight) {
-        LINet.toServer(new SortPacket(byWeight));
+    public static void send(boolean byWeight, boolean inventory, boolean container) {
+        LINet.toServer(new SortPacket(byWeight, inventory, container));
     }
 }

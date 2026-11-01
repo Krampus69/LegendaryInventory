@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -14,9 +15,29 @@ public final class LIKeys {
 
     private static final String CATEGORY = "key.categories.legendaryinventory";
 
-    public static final KeyMapping SORT = new KeyMapping(
+    private static final IKeyConflictContext SORT_CONTEXT = new IKeyConflictContext() {
+        @Override
+        public boolean isActive() {
+            return KeyConflictContext.GUI.isActive();
+        }
+
+        @Override
+        public boolean conflicts(IKeyConflictContext other) {
+            return other != this && KeyConflictContext.GUI.conflicts(other);
+        }
+    };
+
+    public static final KeyMapping SORT_INVENTORY = new KeyMapping(
         "key.legendaryinventory.sort",
-        KeyConflictContext.GUI,
+        SORT_CONTEXT,
+        InputConstants.Type.KEYSYM,
+        GLFW.GLFW_KEY_R,
+        CATEGORY
+    );
+
+    public static final KeyMapping SORT_CONTAINER = new KeyMapping(
+        "key.legendaryinventory.sort_container",
+        SORT_CONTEXT,
         InputConstants.Type.KEYSYM,
         GLFW.GLFW_KEY_R,
         CATEGORY
@@ -48,11 +69,20 @@ public final class LIKeys {
 
     private LIKeys() {}
 
+    public static boolean matches(KeyMapping mapping, int keyCode, int scanCode) {
+        InputConstants.Key key = mapping.getKey();
+        if (key.getType() == InputConstants.Type.SCANCODE) {
+            return key.getValue() == scanCode;
+        }
+        return key.getType() == InputConstants.Type.KEYSYM && key.getValue() == keyCode;
+    }
+
     @Mod.EventBusSubscriber(modid = LegendaryInventory.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static final class ModBus {
         @SubscribeEvent
         public static void register(RegisterKeyMappingsEvent event) {
-            event.register(SORT);
+            event.register(SORT_INVENTORY);
+            event.register(SORT_CONTAINER);
             event.register(SHOW_WEIGHT);
             event.register(EXPAND);
             event.register(SEARCH);

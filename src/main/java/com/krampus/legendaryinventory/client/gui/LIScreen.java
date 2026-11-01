@@ -1,7 +1,6 @@
 package com.krampus.legendaryinventory.client.gui;
 
 import com.krampus.legendaryinventory.menu.LIMenu;
-import com.mojang.blaze3d.platform.InputConstants;
 import com.krampus.legendaryinventory.net.LINet;
 import com.krampus.legendaryinventory.net.ScrollPacket;
 import com.krampus.legendaryinventory.net.SortPacket;
@@ -343,11 +342,7 @@ public class LIScreen extends EffectRenderingInventoryScreen<LIMenu> implements 
     }
 
     private static boolean isSortKey(int keyCode, int scanCode) {
-        InputConstants.Key key = LIKeys.SORT.getKey();
-        if (key.getType() == InputConstants.Type.SCANCODE) {
-            return key.getValue() == scanCode;
-        }
-        return key.getType() == InputConstants.Type.KEYSYM && key.getValue() == keyCode;
+        return LIKeys.matches(LIKeys.SORT_INVENTORY, keyCode, scanCode);
     }
 
     @Override

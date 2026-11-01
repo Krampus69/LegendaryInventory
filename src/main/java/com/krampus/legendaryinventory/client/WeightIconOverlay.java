@@ -19,6 +19,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -97,7 +98,7 @@ public final class WeightIconOverlay {
     public static final class ModBus {
         @SubscribeEvent
         public static void register(RegisterGuiOverlaysEvent event) {
-            event.registerAboveAll("weight_icon", WeightIconOverlay::render);
+            event.registerBelow(VanillaGuiOverlay.DEBUG_TEXT.id(), "weight_icon", WeightIconOverlay::render);
         }
     }
 

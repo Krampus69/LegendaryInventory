@@ -11,6 +11,7 @@
   "item.legendaryinventory.sack.owner": "由 %s 掉落",
   "item.legendaryinventory.sack.count": "内含 %s 组物品",
   "key.legendaryinventory.sort": "整理物品栏",
+  "key.legendaryinventory.sort_container": "整理容器",
   "key.legendaryinventory.show_weight": "显示负重条",
   "key.legendaryinventory.expand": "展开物品栏",
   "key.categories.legendaryinventory": "Legendary Inventory",

@@ -80,6 +80,10 @@ public final class ExpandAnimator {
         return (1.0F - progress()) * ScrollContext.EXTRA_ROWS * SLOT;
     }
 
+    public static int panelTop(AbstractContainerScreen<?> target) {
+        return target.getGuiTop() + InventoryExpansion.coverTop() + Math.round((1.0F - progress()) * InventoryExpansion.coverHeight());
+    }
+
     public static void render(GuiGraphics g, Font font, AbstractContainerScreen<?> target, ScrollContext context) {
         if (!animating(target)) {
             return;
@@ -88,7 +92,7 @@ public final class ExpandAnimator {
         int guiLeft = target.getGuiLeft();
         int guiTop = target.getGuiTop();
         int rowsTop = guiTop + InventoryExpansion.rowsTop();
-        int panelTop = guiTop + InventoryExpansion.coverTop() + Math.round((1.0F - progress()) * InventoryExpansion.coverHeight());
+        int panelTop = panelTop(target);
         int bottom = rowsTop + ROWS * SLOT;
 
         g.enableScissor(guiLeft, panelTop, guiLeft + InventoryExpansion.panelWidth(), bottom);
@@ -119,6 +123,11 @@ public final class ExpandAnimator {
         }
         g.pose().popPose();
         g.disableScissor();
+
+        g.pose().pushPose();
+        g.pose().translate(0.0F, 0.0F, Z);
+        InventoryScrollBar.renderAnimated(g, target);
+        g.pose().popPose();
     }
 
     private static ItemStack stackAt(ScrollContext context, int pos) {

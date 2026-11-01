@@ -100,49 +100,63 @@ public final class InventoryScrollBar {
         return context.isExpanded() ? InventoryExpansion.marginAboveRows() : 0;
     }
 
-    private static int barTop(int[] at, ScrollContext context) {
+    private static int barTop(AbstractContainerScreen<?> screen, int[] at, ScrollContext context) {
+        if (ExpandAnimator.animating(screen)) {
+            return ExpandAnimator.panelTop(screen);
+        }
         return at[1] + BAR_DY - topExtension(context);
     }
 
-    private static int barHeight(ScrollContext context) {
-        return context.visibleRows() * ROW_H + TOP_H + topExtension(context);
+    private static int barBottom(int[] at, ScrollContext context) {
+        return at[1] + BAR_DY + context.visibleRows() * ROW_H + TOP_H;
     }
 
-    private static int trackHeight(ScrollContext context) {
-        return barHeight(context) - TOP_H - BOTTOM_H;
+    private static int trackHeight(AbstractContainerScreen<?> screen, int[] at, ScrollContext context) {
+        return barBottom(at, context) - barTop(screen, at, context) - TOP_H - BOTTOM_H;
     }
 
-    private static int travel(ScrollContext context) {
-        return trackHeight(context) - BUTTON_H;
+    private static int travel(AbstractContainerScreen<?> screen, int[] at, ScrollContext context) {
+        return trackHeight(screen, at, context) - BUTTON_H;
     }
 
-    private static int trackTop(int[] at, ScrollContext context) {
-        return barTop(at, context) + TOP_H;
+    private static int trackTop(AbstractContainerScreen<?> screen, int[] at, ScrollContext context) {
+        return barTop(screen, at, context) + TOP_H;
     }
 
-    private static int buttonTop(int[] at, ScrollContext context) {
+    private static int buttonTop(AbstractContainerScreen<?> screen, int[] at, ScrollContext context) {
         int max = context.maxScrollRow();
         float ratio = max <= 0 ? 0.0F : ScrollAnimator.renderRow(context) / max;
         ratio = Math.min(Math.max(ratio, 0.0F), 1.0F);
-        return trackTop(at, context) + Math.round(ratio * travel(context));
+        return trackTop(screen, at, context) + Math.round(ratio * travel(screen, at, context));
     }
 
-    private static boolean overTrack(int[] at, ScrollContext context, double mx, double my) {
+    private static boolean overTrack(AbstractContainerScreen<?> screen, int[] at, ScrollContext context, double mx, double my) {
         int x = at[0] + TRACK_DX;
-        int y = trackTop(at, context);
-        return mx >= x && mx < x + TRACK_W && my >= y && my < y + trackHeight(context);
+        int y = trackTop(screen, at, context);
+        return mx >= x && mx < x + TRACK_W && my >= y && my < y + trackHeight(screen, at, context);
     }
 
     public static void render(GuiGraphics g, AbstractContainerScreen<?> screen) {
+        if (!ExpandAnimator.animating(screen)) {
+            draw(g, screen);
+        }
+    }
+
+    public static void renderAnimated(GuiGraphics g, AbstractContainerScreen<?> screen) {
+        draw(g, screen);
+    }
+
+    private static void draw(GuiGraphics g, AbstractContainerScreen<?> screen) {
         ScrollContext context = contextFor(screen);
         int[] at = context == null ? null : anchor(screen);
         if (at == null) {
             return;
         }
         int barX = at[0] + BAR_DX;
-        int barY = barTop(at, context);
-        int height = barHeight(context);
-        int topU = context.isExpanded() ? EXPANDED_TOP_U : BAR_U;
+        int barY = barTop(screen, at, context);
+        int height = barBottom(at, context) - barY;
+        boolean flush = context.isExpanded() || ExpandAnimator.animating(screen);
+        int topU = flush ? EXPANDED_TOP_U : BAR_U;
         g.blit(TEXTURE, barX, barY, 0, (float) topU, (float) TOP_V, BAR_W, TOP_H, TEX_W, TEX_H);
         int middle = height - TOP_H - BOTTOM_H;
         int drawn = 0;
@@ -152,23 +166,23 @@ public final class InventoryScrollBar {
             drawn += h;
         }
         g.blit(TEXTURE, barX, barY + height - BOTTOM_H, 0, (float) BAR_U, (float) BOTTOM_V, BAR_W, BOTTOM_H, TEX_W, TEX_H);
-        g.blit(TEXTURE, at[0] + TRACK_DX, buttonTop(at, context), 0, (float) BUTTON_U, (float) BUTTON_V, BUTTON_W, BUTTON_H, TEX_W, TEX_H);
+        g.blit(TEXTURE, at[0] + TRACK_DX, buttonTop(screen, at, context), 0, (float) BUTTON_U, (float) BUTTON_V, BUTTON_W, BUTTON_H, TEX_W, TEX_H);
     }
 
     public static boolean mousePressed(AbstractContainerScreen<?> screen, double mx, double my, int button) {
         ScrollContext context = contextFor(screen);
         int[] at = context == null ? null : anchor(screen);
-        if (at == null || button != 0 || !overTrack(at, context, mx, my)) {
+        if (at == null || button != 0 || !overTrack(screen, at, context, mx, my)) {
             return false;
         }
-        int top = buttonTop(at, context);
+        int top = buttonTop(screen, at, context);
         if (my >= top && my < top + BUTTON_H) {
             grabOffset = (int) my - top;
         } else {
             grabOffset = BUTTON_H / 2;
         }
         dragging = true;
-        scrollTo(at, context, my);
+        scrollTo(screen, at, context, my);
         return true;
     }
 
@@ -182,7 +196,7 @@ public final class InventoryScrollBar {
             dragging = false;
             return false;
         }
-        scrollTo(at, context, my);
+        scrollTo(screen, at, context, my);
         return true;
     }
 
@@ -190,12 +204,12 @@ public final class InventoryScrollBar {
         dragging = false;
     }
 
-    private static void scrollTo(int[] at, ScrollContext context, double my) {
+    private static void scrollTo(AbstractContainerScreen<?> screen, int[] at, ScrollContext context, double my) {
         int max = context.maxScrollRow();
         if (max <= 0) {
             return;
         }
-        float ratio = (float) (my - grabOffset - trackTop(at, context)) / travel(context);
+        float ratio = (float) (my - grabOffset - trackTop(screen, at, context)) / travel(screen, at, context);
         int target = Math.round(Math.min(Math.max(ratio, 0.0F), 1.0F) * max);
         if (target != context.getScrollRow()) {
             context.setScrollRow(target);

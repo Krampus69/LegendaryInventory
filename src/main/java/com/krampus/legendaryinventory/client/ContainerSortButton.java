@@ -195,9 +195,13 @@ public final class ContainerSortButton {
     }
 
     public static void click() {
+        click(true, true);
+    }
+
+    public static void click(boolean inventory, boolean container) {
         Minecraft.getInstance().getSoundManager().play(
                 SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-        SortAction.send(Screen.hasControlDown());
+        SortAction.send(Screen.hasControlDown(), inventory, container);
     }
 
     public static void mouseMoved(AbstractContainerScreen<?> screen, double mouseX, double mouseY) {

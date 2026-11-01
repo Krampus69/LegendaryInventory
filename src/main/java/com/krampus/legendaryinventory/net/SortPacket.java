@@ -22,34 +22,50 @@ public class SortPacket {
     private static final Map<ServerPlayer, Integer> LAST_SORT = new WeakHashMap<>();
 
     private final boolean byWeight;
+    private final boolean inventory;
+    private final boolean container;
 
     public SortPacket() {
         this(false);
     }
 
     public SortPacket(boolean byWeight) {
+        this(byWeight, true, true);
+    }
+
+    public SortPacket(boolean byWeight, boolean inventory, boolean container) {
         this.byWeight = byWeight;
+        this.inventory = inventory;
+        this.container = container;
     }
 
     public SortPacket(FriendlyByteBuf buf) {
         this.byWeight = buf.readBoolean();
+        this.inventory = buf.readBoolean();
+        this.container = buf.readBoolean();
     }
 
     public void encode(FriendlyByteBuf buf) {
         buf.writeBoolean(this.byWeight);
+        buf.writeBoolean(this.inventory);
+        buf.writeBoolean(this.container);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ServerPlayer player = ctx.get().getSender();
         if (player != null) {
             ScrollContext context = ScrollRegistry.get(player.containerMenu);
-            if (context != null && accept(player)) {
-                InventorySorter.sort(context.getBacking(), this.byWeight);
-                for (SlotGroupHandler group : SlotGroupHandler.containerGroups(player.containerMenu, player.getInventory())) {
-                    InventorySorter.sort(group, this.byWeight);
+            if (context != null && (this.inventory || this.container) && accept(player)) {
+                if (this.inventory) {
+                    InventorySorter.sort(context.getBacking(), this.byWeight);
+                    player.getInventory().setChanged();
+                    context.setFilter(null);
                 }
-                player.getInventory().setChanged();
-                context.setFilter(null);
+                if (this.container) {
+                    for (SlotGroupHandler group : SlotGroupHandler.containerGroups(player.containerMenu, player.getInventory())) {
+                        InventorySorter.sort(group, this.byWeight);
+                    }
+                }
                 player.containerMenu.broadcastFullState();
                 ExtendedInventory extended = LICaps.get(player);
                 extended.clearChanges();

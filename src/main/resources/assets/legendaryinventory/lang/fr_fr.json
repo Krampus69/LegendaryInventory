@@ -11,6 +11,7 @@
   "item.legendaryinventory.sack.owner": "Lâché par %s",
   "item.legendaryinventory.sack.count": "%s piles à l'intérieur",
   "key.legendaryinventory.sort": "Trier l'inventaire",
+  "key.legendaryinventory.sort_container": "Trier le conteneur",
   "key.legendaryinventory.show_weight": "Afficher la barre de poids",
   "key.legendaryinventory.expand": "Agrandir l'inventaire",
   "key.categories.legendaryinventory": "Legendary Inventory",

@@ -11,6 +11,7 @@
   "item.legendaryinventory.sack.owner": "Lasciato da %s",
   "item.legendaryinventory.sack.count": "%s pile all'interno",
   "key.legendaryinventory.sort": "Ordina inventario",
+  "key.legendaryinventory.sort_container": "Ordina contenitore",
   "key.legendaryinventory.show_weight": "Mostra barra del peso",
   "key.legendaryinventory.expand": "Espandi inventario",
   "key.categories.legendaryinventory": "Legendary Inventory",

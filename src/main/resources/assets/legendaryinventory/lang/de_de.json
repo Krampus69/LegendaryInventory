@@ -11,6 +11,7 @@
   "item.legendaryinventory.sack.owner": "Fallen gelassen von %s",
   "item.legendaryinventory.sack.count": "%s Stapel enthalten",
   "key.legendaryinventory.sort": "Inventar sortieren",
+  "key.legendaryinventory.sort_container": "Behälter sortieren",
   "key.legendaryinventory.show_weight": "Gewichtsleiste anzeigen",
   "key.legendaryinventory.expand": "Inventar erweitern",
   "key.categories.legendaryinventory": "Legendary Inventory",
