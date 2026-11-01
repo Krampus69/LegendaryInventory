@@ -21,6 +21,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -97,7 +98,7 @@ public final class WeightIconOverlay {
     public static final class ModBus {
         @SubscribeEvent
         public static void register(RegisterGuiLayersEvent event) {
-            event.registerAboveAll(
+            event.registerBelow(VanillaGuiLayers.DEBUG_OVERLAY,
                     ResourceLocation.fromNamespaceAndPath(LegendaryInventory.MODID, "weight_icon"),
                     WeightIconOverlay::render);
         }

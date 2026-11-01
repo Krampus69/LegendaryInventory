@@ -182,6 +182,7 @@ public final class LIConfig {
         public final ModConfigSpec.BooleanValue iconMoved;
         public final ModConfigSpec.IntValue iconX;
         public final ModConfigSpec.IntValue iconY;
+        public final ModConfigSpec.ConfigValue<List<? extends String>> weightBarHiddenScreens;
         public final ModConfigSpec.BooleanValue itemTooltipWeight;
         public final ModConfigSpec.BooleanValue scrollBarVisible;
         public final ModConfigSpec.BooleanValue inventoryExpanded;
@@ -203,6 +204,12 @@ public final class LIConfig {
                     .defineInRange("iconX", 0, -10000, 10000);
             iconY = b.comment("Top edge of the weight icon, relative to the screen bottom. Used when iconMoved is true.")
                     .defineInRange("iconY", -22, -10000, 10000);
+            weightBarHiddenScreens = b.comment(
+                    "Container screens that never show the inventory weight bar, search and scroll bar toggle.",
+                    "Each entry is matched against the full class name of the screen and of its menu, a partial name matches too."
+            ).defineListAllowEmpty("weightBarHiddenScreens",
+                    List.of("net.minecraft.client.gui.screens.inventory.MerchantScreen", "Trading", "Merchant"),
+                    o -> o instanceof String);
             b.pop();
 
             b.push("tooltip");

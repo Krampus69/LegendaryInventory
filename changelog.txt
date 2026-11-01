@@ -1,4 +1,6 @@
 legendaryinventory-1.21.1 Changelog
-1.2.6
+1.2.8
 ====
-Small visual changes for the UI
+fixed some inventory bugs (arrows, scrollbar, shift-click...)
+you can bind sort inventory and containers separately now
+fixed fov bug with full inventory

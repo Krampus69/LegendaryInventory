@@ -105,6 +105,16 @@ public final class ExtendedAccess {
         return false;
     }
 
+    public static int findMatching(ExtendedInventory ext, Predicate<ItemStack> predicate) {
+        for (int i = 0; i < ext.getSlots(); i++) {
+            ItemStack present = ext.getStackInSlot(i);
+            if (!present.isEmpty() && predicate.test(present)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public static int findMatching(ExtendedInventory ext, ItemStack stack) {
         for (int i = 0; i < ext.getSlots(); i++) {
             ItemStack present = ext.getStackInSlot(i);

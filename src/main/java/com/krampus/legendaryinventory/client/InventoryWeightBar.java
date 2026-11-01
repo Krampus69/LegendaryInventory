@@ -1,6 +1,7 @@
 package com.krampus.legendaryinventory.client;
 
 import com.krampus.legendaryinventory.LegendaryInventory;
+import com.krampus.legendaryinventory.config.LIConfig;
 import com.krampus.legendaryinventory.client.gui.LIScreen;
 import com.krampus.legendaryinventory.menu.ScrollRegistry;
 import com.krampus.legendaryinventory.weight.CarryLoad;
@@ -49,7 +50,7 @@ public final class InventoryWeightBar {
     private InventoryWeightBar() {}
 
     private static LocalPlayer visibleFor(AbstractContainerScreen<?> screen) {
-        if (screen instanceof LIScreen || !ScrollRegistry.has(screen.getMenu())) {
+        if (screen instanceof LIScreen || !ScrollRegistry.has(screen.getMenu()) || hiddenOn(screen)) {
             return null;
         }
         LocalPlayer player = Minecraft.getInstance().player;
@@ -57,6 +58,17 @@ public final class InventoryWeightBar {
             return null;
         }
         return player;
+    }
+
+    private static boolean hiddenOn(AbstractContainerScreen<?> screen) {
+        String screenName = screen.getClass().getName();
+        String menuName = screen.getMenu().getClass().getName();
+        for (String entry : LIConfig.CLIENT.weightBarHiddenScreens.get()) {
+            if (!entry.isEmpty() && (screenName.contains(entry) || menuName.contains(entry))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static int carried(LocalPlayer player) {

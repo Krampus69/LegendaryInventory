@@ -11,6 +11,7 @@
   "item.legendaryinventory.sack.owner": "Dropped by %s",
   "item.legendaryinventory.sack.count": "%s stacks inside",
   "key.legendaryinventory.sort": "Sort Inventory",
+  "key.legendaryinventory.sort_container": "Sort Container",
   "key.legendaryinventory.show_weight": "Show Weight Bar",
   "key.legendaryinventory.expand": "Expand inventory",
   "key.categories.legendaryinventory": "Legendary Inventory",

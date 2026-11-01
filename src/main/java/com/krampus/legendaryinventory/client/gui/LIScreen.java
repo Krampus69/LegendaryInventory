@@ -11,7 +11,6 @@ import com.krampus.legendaryinventory.net.ScrollPacket;
 import com.krampus.legendaryinventory.net.SortPacket;
 import com.krampus.legendaryinventory.weight.CarryLoad;
 import com.krampus.legendaryinventory.weight.WeightTable;
-import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
@@ -343,11 +342,7 @@ public class LIScreen extends EffectRenderingInventoryScreen<LIMenu> implements 
     }
 
     private static boolean isSortKey(int keyCode, int scanCode) {
-        InputConstants.Key key = LIKeys.SORT.getKey();
-        if (key.getType() == InputConstants.Type.SCANCODE) {
-            return key.getValue() == scanCode;
-        }
-        return key.getType() == InputConstants.Type.KEYSYM && key.getValue() == keyCode;
+        return LIKeys.matches(LIKeys.SORT_INVENTORY, keyCode, scanCode);
     }
 
     @Override

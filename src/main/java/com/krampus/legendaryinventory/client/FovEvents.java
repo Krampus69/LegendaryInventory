@@ -2,6 +2,7 @@ package com.krampus.legendaryinventory.client;
 
 import com.krampus.legendaryinventory.LegendaryInventory;
 import com.krampus.legendaryinventory.event.WeightEvents;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -44,6 +45,8 @@ public final class FovEvents {
             return;
         }
 
-        event.setNewFovModifier((float) (event.getNewFovModifier() * factorWithout / factorWith));
+        double scale = Minecraft.getInstance().options.fovEffectScale().get();
+        double correction = scale * event.getFovModifier() * (factorWithout / factorWith - 1.0D);
+        event.setNewFovModifier((float) (event.getNewFovModifier() + correction));
     }
 }

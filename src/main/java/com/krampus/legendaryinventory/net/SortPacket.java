@@ -17,14 +17,22 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public record SortPacket(boolean byWeight) implements CustomPacketPayload {
+public record SortPacket(boolean byWeight, boolean inventory, boolean container) implements CustomPacketPayload {
 
     public static final Type<SortPacket> TYPE = new Type<>(LINet.id("sort"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, SortPacket> STREAM_CODEC =
-        StreamCodec.composite(ByteBufCodecs.BOOL, SortPacket::byWeight, SortPacket::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, SortPacket> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.BOOL, SortPacket::byWeight,
+        ByteBufCodecs.BOOL, SortPacket::inventory,
+        ByteBufCodecs.BOOL, SortPacket::container,
+        SortPacket::new
+    );
 
     private static final int COOLDOWN_TICKS = 5;
     private static final Map<ServerPlayer, Integer> LAST_SORT = new WeakHashMap<>();
+
+    public SortPacket(boolean byWeight) {
+        this(byWeight, true, true);
+    }
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
@@ -36,15 +44,19 @@ public record SortPacket(boolean byWeight) implements CustomPacketPayload {
             return;
         }
         ScrollContext context = ScrollRegistry.get(player.containerMenu);
-        if (context == null || !accept(player)) {
+        if (context == null || !(packet.inventory() || packet.container()) || !accept(player)) {
             return;
         }
-        InventorySorter.sort(context.getBacking(), packet.byWeight());
-        for (SlotGroupHandler group : SlotGroupHandler.containerGroups(player.containerMenu, player.getInventory())) {
-            InventorySorter.sort(group, packet.byWeight());
+        if (packet.inventory()) {
+            InventorySorter.sort(context.getBacking(), packet.byWeight());
+            player.getInventory().setChanged();
+            context.setFilter(null);
         }
-        player.getInventory().setChanged();
-        context.setFilter(null);
+        if (packet.container()) {
+            for (SlotGroupHandler group : SlotGroupHandler.containerGroups(player.containerMenu, player.getInventory())) {
+                InventorySorter.sort(group, packet.byWeight());
+            }
+        }
         player.containerMenu.broadcastFullState();
         ExtendedInventory extended = LIAttachments.extended(player);
         extended.clearChanges();

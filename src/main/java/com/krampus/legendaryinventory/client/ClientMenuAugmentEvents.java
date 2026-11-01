@@ -235,12 +235,16 @@ public final class ClientMenuAugmentEvents {
         if (screen == null) {
             return;
         }
-        if (!isSortKey(event.getKeyCode(), event.getScanCode())) {
+        boolean inventory = LIKeys.matches(LIKeys.SORT_INVENTORY, event.getKeyCode(), event.getScanCode());
+        boolean container = LIKeys.matches(LIKeys.SORT_CONTAINER, event.getKeyCode(), event.getScanCode());
+        if (!inventory && !container) {
             return;
         }
-        InventorySearchBar.clear();
+        if (inventory) {
+            InventorySearchBar.clear();
+        }
         ContainerSortButton.setKeyHeld(true);
-        ContainerSortButton.click();
+        ContainerSortButton.click(inventory, container);
         event.setCanceled(true);
     }
 
@@ -281,11 +285,8 @@ public final class ClientMenuAugmentEvents {
     }
 
     private static boolean isSortKey(int keyCode, int scanCode) {
-        InputConstants.Key key = LIKeys.SORT.getKey();
-        if (key.getType() == InputConstants.Type.SCANCODE) {
-            return key.getValue() == scanCode;
-        }
-        return key.getType() == InputConstants.Type.KEYSYM && key.getValue() == keyCode;
+        return LIKeys.matches(LIKeys.SORT_INVENTORY, keyCode, scanCode)
+            || LIKeys.matches(LIKeys.SORT_CONTAINER, keyCode, scanCode);
     }
 
     private static void clampScroll(AbstractContainerMenu menu) {
