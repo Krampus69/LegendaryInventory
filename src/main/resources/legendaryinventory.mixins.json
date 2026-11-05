@@ -14,13 +14,15 @@
     "InventoryMixin",
     "MoveItemStackMixin",
     "RemoteSlotWriteMixin",
-    "SlotMixin"
+    "SlotMixin",
+    "compat.AE2StorageMenuMixin"
   ],
   "client": [
     "client.CreativeScreenClickMixin",
     "client.GuiGraphicsAccessor",
     "client.MultiPlayerGameModeMixin",
     "client.InventoryScreenMixin",
-    "client.compat.LootJournalTotalMixin"
+    "client.compat.LootJournalTotalMixin",
+    "client.compat.JeiClickableAreaMixin"
   ]
 }

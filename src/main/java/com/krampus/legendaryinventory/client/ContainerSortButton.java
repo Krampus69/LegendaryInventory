@@ -27,6 +27,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public final class ContainerSortButton {
 
@@ -100,6 +101,10 @@ public final class ContainerSortButton {
         return t * t * (3.0F - 2.0F * t);
     }
 
+    private static final Map<String, int[]> SCREEN_DEFAULTS = Map.of(
+            "appeng.client.gui.me.common.MEStorageScreen", new int[] {52, 5}
+    );
+
     private static boolean augmented(AbstractContainerScreen<?> screen) {
         for (Slot slot : screen.getMenu().slots) {
             if (slot instanceof LISlot) {
@@ -114,6 +119,10 @@ public final class ContainerSortButton {
     }
 
     private static int[] defaultAnchor(AbstractContainerScreen<?> screen) {
+        int[] preset = SCREEN_DEFAULTS.get(screen.getClass().getName());
+        if (preset != null) {
+            return new int[] {preset[0], preset[1]};
+        }
         return new int[] {screen.getXSize() - RIGHT_MARGIN, topEdge(screen) + TOP_MARGIN};
     }
 

@@ -112,7 +112,7 @@ public final class InventoryWeightBar {
     }
 
     private static int barLeft(AbstractContainerScreen<?> screen) {
-        return screen.getGuiLeft() + (screen.getXSize() - BG_W) / 2 + BG_X;
+        return AugmentedScreens.centeredLeft(screen, BG_W) + BG_X;
     }
 
     private static int barTop(AbstractContainerScreen<?> screen) {
