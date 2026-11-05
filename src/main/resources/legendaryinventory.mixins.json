@@ -13,7 +13,8 @@
     "InventoryMixin",
     "MoveItemStackMixin",
     "RemoteSlotWriteMixin",
-    "SlotMixin"
+    "SlotMixin",
+    "compat.AE2StorageMenuMixin"
   ],
   "client": [
     "client.CreativeScreenClickMixin",

@@ -18,6 +18,9 @@ public class LISlot extends Slot {
     private final int baseWindow;
     private final boolean extra;
     private boolean renderHidden = false;
+    private Slot replaced;
+    private int followX;
+    private int followY;
 
     public LISlot(ScrollContext context, int window, int x, int y) {
         this(context, window, false, x, y);
@@ -32,6 +35,22 @@ public class LISlot extends Slot {
         this.context = context;
         this.baseWindow = baseWindow;
         this.extra = extra;
+    }
+
+    public void replaces(Slot old) {
+        this.replaced = old;
+        this.followX = old.x;
+        this.followY = old.y;
+    }
+
+    public void followReplaced() {
+        if (replaced == null || (replaced.x == followX && replaced.y == followY)) {
+            return;
+        }
+        followX = replaced.x;
+        followY = replaced.y;
+        x = followX;
+        y = followY;
     }
 
     public ScrollContext context() {

@@ -83,8 +83,9 @@ public final class WheelTransfer {
         boolean sourcePlayerSide = isPlayerSide(source, inventory);
         int above = 0;
         int below = 0;
-        for (Slot slot : screen.getMenu().slots) {
-            if (!slot.isActive() || isPlayerSide(slot, inventory) == sourcePlayerSide) {
+        AbstractContainerMenu menu = screen.getMenu();
+        for (Slot slot : menu.slots) {
+            if (!slot.isActive() || !AugmentedScreens.isReal(menu, slot) || isPlayerSide(slot, inventory) == sourcePlayerSide) {
                 continue;
             }
             if (slot.y < source.y) {
@@ -214,7 +215,13 @@ public final class WheelTransfer {
     }
 
     private static List<Slot> ordered(AbstractContainerScreen<?> screen) {
-        List<Slot> slots = new ArrayList<>(screen.getMenu().slots);
+        AbstractContainerMenu menu = screen.getMenu();
+        List<Slot> slots = new ArrayList<>(menu.slots.size());
+        for (Slot slot : menu.slots) {
+            if (AugmentedScreens.isReal(menu, slot)) {
+                slots.add(slot);
+            }
+        }
         if (WheelSettings.current().lastToFirst()) {
             java.util.Collections.reverse(slots);
         }

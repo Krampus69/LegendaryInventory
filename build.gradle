@@ -53,6 +53,7 @@ neoForge {
             sourceSet(sourceSets.main)
         }
     }
+    validateAccessTransformers = true
 }
 
 sourceSets.main.resources {

@@ -18,7 +18,8 @@ public final class HotbarSwapKeys {
             return false;
         }
         Slot hovered = screen.getSlotUnderMouse();
-        if (hovered == null || !hovered.hasItem() || !screen.getMenu().getCarried().isEmpty()) {
+        if (hovered == null || !AugmentedScreens.isReal(screen.getMenu(), hovered)
+            || !hovered.hasItem() || !screen.getMenu().getCarried().isEmpty()) {
             return false;
         }
         KeyMapping[] keys = mc.options.keyHotbarSlots;

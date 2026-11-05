@@ -10,8 +10,10 @@ import java.util.Set;
 
 public final class LIMixinPlugin implements IMixinConfigPlugin {
 
-    private static final String COMPAT_PACKAGE = ".mixin.client.compat.";
+    private static final String CLIENT_COMPAT_PACKAGE = ".mixin.client.compat.";
+    private static final String COMPAT_PACKAGE = ".mixin.compat.";
     private static final String LOOT_JOURNAL = "LootJournal";
+    private static final String AE2 = "AE2";
 
     @Override
     public void onLoad(String mixinPackage) {}
@@ -23,11 +25,14 @@ public final class LIMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (!mixinClassName.contains(COMPAT_PACKAGE)) {
+        if (!mixinClassName.contains(CLIENT_COMPAT_PACKAGE) && !mixinClassName.contains(COMPAT_PACKAGE)) {
             return true;
         }
         if (mixinClassName.contains(LOOT_JOURNAL)) {
             return LoadingModList.get().getModFileById("loot_journal") != null;
+        }
+        if (mixinClassName.contains(AE2)) {
+            return LoadingModList.get().getModFileById("ae2") != null;
         }
         return true;
     }

@@ -201,7 +201,7 @@ public final class InventorySearchBar {
     }
 
     private static int frameLeft() {
-        return screen.getGuiLeft() + (screen.getXSize() - FRAME_W) / 2;
+        return AugmentedScreens.centeredLeft(screen, FRAME_W);
     }
 
     private static int frameTop() {

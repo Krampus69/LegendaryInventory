@@ -112,6 +112,7 @@ public final class MenuAugment {
             int window = old.getSlotIndex() - MAIN_FIRST;
             LISlot replacement = new LISlot(inventory, old.getSlotIndex(), context, window, false, old.x, old.y);
             replacement.index = menuIndex;
+            replacement.replaces(old);
             menu.slots.set(menuIndex, replacement);
         }
 

@@ -77,6 +77,16 @@ public final class InventoryScrollBar {
         return contextFor(screen) != null && anchor(screen) != null;
     }
 
+    public static boolean contains(AbstractContainerScreen<?> screen, double mx, double my) {
+        ScrollContext context = contextFor(screen);
+        int[] at = context == null ? null : anchor(screen);
+        if (at == null) {
+            return false;
+        }
+        int x = at[0] + BAR_DX;
+        return mx >= x && mx < x + BAR_W && my >= barTop(screen, at, context) && my < barBottom(at, context);
+    }
+
     public static int width() {
         return BAR_W;
     }

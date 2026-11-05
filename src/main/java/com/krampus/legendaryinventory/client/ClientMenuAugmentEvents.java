@@ -2,6 +2,7 @@ package com.krampus.legendaryinventory.client;
 
 import com.krampus.legendaryinventory.LegendaryInventory;
 import com.krampus.legendaryinventory.client.gui.LIScreen;
+import com.krampus.legendaryinventory.compat.AE2Compat;
 import com.krampus.legendaryinventory.menu.MenuAugment;
 import com.krampus.legendaryinventory.menu.ScrollContext;
 import com.krampus.legendaryinventory.menu.ScrollRegistry;
@@ -53,6 +54,7 @@ public final class ClientMenuAugmentEvents {
     public static void onScreenInitPost(ScreenEvent.Init.Post event) {
         AbstractContainerScreen<?> screen = AugmentedScreens.of(event.getScreen());
         if (screen != null) {
+            AugmentedScreens.followReplaced(screen);
             InventoryExpansion.updateWidgets(screen);
         }
     }
@@ -117,6 +119,7 @@ public final class ClientMenuAugmentEvents {
         if (screen == null) {
             return;
         }
+        AugmentedScreens.followReplaced(screen);
         ScrollContext context = ScrollRegistry.get(screen.getMenu());
         ScrollAnimator.tick(context);
         ExpandAnimator.tick(screen);
@@ -268,6 +271,11 @@ public final class ClientMenuAugmentEvents {
             if (WheelTransfer.handle(screen, event.getMouseX(), event.getMouseY(), event.getScrollDeltaY())) {
                 event.setCanceled(true);
             }
+            return;
+        }
+        if (AE2Compat.isAE2Screen(screen)
+            && !AugmentedScreens.overRows(screen, event.getMouseX(), event.getMouseY())
+            && !InventoryScrollBar.contains(screen, event.getMouseX(), event.getMouseY())) {
             return;
         }
         event.setCanceled(true);
