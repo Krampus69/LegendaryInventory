@@ -15,6 +15,7 @@ public final class LIMixinPlugin implements IMixinConfigPlugin {
     private static final String LOOT_JOURNAL = "LootJournal";
     private static final String AE2 = "AE2";
     private static final String JEI = "Jei";
+    private static final String QUARK = "Quark";
 
     @Override
     public void onLoad(String mixinPackage) {}
@@ -37,6 +38,9 @@ public final class LIMixinPlugin implements IMixinConfigPlugin {
         }
         if (mixinClassName.contains(JEI)) {
             return LoadingModList.get().getModFileById("jei") != null;
+        }
+        if (mixinClassName.contains(QUARK)) {
+            return LoadingModList.get().getModFileById("quark") != null;
         }
         return true;
     }

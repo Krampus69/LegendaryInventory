@@ -88,6 +88,7 @@ dependencies {
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:15.20.0.106")
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:15.20.0.106")
     runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:15.20.0.106")
+    compileOnly fg.deobf(files("libs/Quark-4.0-462.jar"))
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 

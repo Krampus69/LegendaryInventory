@@ -8,6 +8,8 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
@@ -41,6 +43,8 @@ public final class ContainerSortButton {
     private static final int RIGHT_MARGIN = 17;
     private static final int TOP_MARGIN = 5;
     private static final int SNAP = 3;
+    private static final int AVOID_SHIFT = 12;
+    private static final int AVOID_STEPS = 6;
     private static final long POP_MILLIS = 50L;
 
     private static final int MENU_PAD = 3;
@@ -126,6 +130,27 @@ public final class ContainerSortButton {
         return new int[] {screen.getXSize() - RIGHT_MARGIN, topEdge(screen) + TOP_MARGIN};
     }
 
+    private static int[] freeDefault(AbstractContainerScreen<?> screen) {
+        int[] at = defaultAnchor(screen);
+        for (int i = 0; i < AVOID_STEPS && overlapsWidget(screen, at[0], at[1]); i++) {
+            at[0] -= AVOID_SHIFT;
+        }
+        return at;
+    }
+
+    private static boolean overlapsWidget(AbstractContainerScreen<?> screen, int x, int y) {
+        int left = screen.getGuiLeft() + x;
+        int top = screen.getGuiTop() + y;
+        for (GuiEventListener child : screen.children()) {
+            if (child instanceof AbstractWidget widget && widget.visible
+                && widget.getX() < left + SIZE && widget.getX() + widget.getWidth() > left
+                && widget.getY() < top + SIZE && widget.getY() + widget.getHeight() > top) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static int[] anchor(AbstractContainerScreen<?> screen) {
         if (!augmented(screen)) {
             return null;
@@ -136,7 +161,7 @@ public final class ContainerSortButton {
         SortButtonLayout.Entry entry = SortButtonLayout.get(screen);
         int[] at = entry != null && entry.x != null && entry.y != null
                 ? new int[] {entry.x, entry.y}
-                : defaultAnchor(screen);
+                : freeDefault(screen);
         int absX = Math.max(0, Math.min(screen.width - SIZE, screen.getGuiLeft() + at[0]));
         int absY = Math.max(0, Math.min(screen.height - SIZE, screen.getGuiTop() + at[1]));
         return new int[] {absX - screen.getGuiLeft(), absY - screen.getGuiTop()};
@@ -222,7 +247,7 @@ public final class ContainerSortButton {
         int absY = (int) Math.round(mouseY) - SIZE / 2;
         absX = Math.max(0, Math.min(screen.width - SIZE, absX));
         absY = Math.max(0, Math.min(screen.height - SIZE, absY));
-        moveX = snap(absX - screen.getGuiLeft(), defaultAnchor(screen)[0], RIGHT_MARGIN - SIZE);
+        moveX = snap(absX - screen.getGuiLeft(), freeDefault(screen)[0], RIGHT_MARGIN - SIZE);
         moveY = snap(absY - screen.getGuiTop(), topEdge(screen) + TOP_MARGIN, screen.getYSize() - TOP_MARGIN - SIZE);
     }
 
@@ -318,8 +343,8 @@ public final class ContainerSortButton {
         switch (action) {
             case MOVE -> {
                 int[] at = anchor(screen);
-                moveX = at == null ? defaultAnchor(screen)[0] : at[0];
-                moveY = at == null ? defaultAnchor(screen)[1] : at[1];
+                moveX = at == null ? freeDefault(screen)[0] : at[0];
+                moveY = at == null ? freeDefault(screen)[1] : at[1];
                 moveScreen = screen;
             }
             case HIDE -> SortButtonLayout.setHidden(screen, true);

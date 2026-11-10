@@ -6,14 +6,55 @@ import com.krampus.legendaryinventory.menu.ScrollRegistry;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractContainerMenu.class)
 public abstract class MoveItemStackMixin {
+
+    @Unique
+    private boolean legendaryinventory$mergedFirst;
+
+    @Inject(
+        method = {"moveItemStackTo", "m_38903_"},
+        at = @At("HEAD"),
+        require = 1,
+        remap = false
+    )
+    private void legendaryinventory$mergeIntoBacking(
+            ItemStack stack, int startIndex, int endIndex, boolean reverse,
+            CallbackInfoReturnable<Boolean> cir) {
+
+        legendaryinventory$mergedFirst = false;
+        if (stack.isEmpty() || !stack.isStackable()) {
+            return;
+        }
+
+        AbstractContainerMenu menu = (AbstractContainerMenu) (Object) this;
+        ScrollContext context = ScrollRegistry.get(menu);
+        if (context == null || !legendaryinventory$rangeCoversWindow(menu, startIndex, endIndex)) {
+            return;
+        }
+
+        IItemHandler backing = context.getBacking();
+        for (int i = 0; i < backing.getSlots() && !stack.isEmpty(); i++) {
+            ItemStack present = backing.getStackInSlot(i);
+            if (present == stack || present.isEmpty() || !ItemStack.isSameItemSameTags(present, stack)) {
+                continue;
+            }
+            int before = stack.getCount();
+            int after = backing.insertItem(i, stack.copy(), false).getCount();
+            if (after != before) {
+                stack.setCount(after);
+                legendaryinventory$mergedFirst = true;
+            }
+        }
+    }
 
     @Inject(
         method = {"moveItemStackTo", "m_38903_"},
@@ -26,6 +67,10 @@ public abstract class MoveItemStackMixin {
             ItemStack stack, int startIndex, int endIndex, boolean reverse,
             CallbackInfoReturnable<Boolean> cir) {
 
+        if (legendaryinventory$mergedFirst) {
+            legendaryinventory$mergedFirst = false;
+            cir.setReturnValue(true);
+        }
         if (stack.isEmpty()) {
             return;
         }
@@ -51,6 +96,7 @@ public abstract class MoveItemStackMixin {
         cir.setReturnValue(true);
     }
 
+    @Unique
     private static boolean legendaryinventory$rangeCoversWindow(
             AbstractContainerMenu menu, int startIndex, int endIndex) {
         int from = Math.max(0, Math.min(startIndex, endIndex));

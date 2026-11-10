@@ -15,7 +15,10 @@
     "MoveItemStackMixin",
     "RemoteSlotWriteMixin",
     "SlotMixin",
-    "compat.AE2StorageMenuMixin"
+    "compat.AE2StorageMenuMixin",
+    "compat.QuarkRestockMixin",
+    "compat.QuarkSortingMixin",
+    "compat.QuarkTransferMixin"
   ],
   "client": [
     "client.CreativeScreenClickMixin",
